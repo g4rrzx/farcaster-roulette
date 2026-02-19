@@ -4,10 +4,13 @@ import { useState } from 'react';
 import styles from './Spin.module.css';
 import RouletteRing from '@/components/RouletteRing';
 import SpinButton from '@/components/SpinButton';
+import { useAuth } from '@/components/AuthProvider';
 
 export default function SpinPage() {
+    const { user } = useAuth();
     const [isSpinning, setIsSpinning] = useState(false);
     const [result, setResult] = useState<null | 'win' | 'loss'>(null);
+    const [balance, setBalance] = useState(1000);
 
     const handleSpin = async () => {
         setIsSpinning(true);
@@ -16,8 +19,9 @@ export default function SpinPage() {
         // Simulate backend call and delay
         setTimeout(() => {
             setIsSpinning(false);
-            // Random result for now
-            setResult(Math.random() > 0.5 ? 'win' : 'loss');
+            const won = Math.random() > 0.5;
+            setResult(won ? 'win' : 'loss');
+            setBalance((prev) => won ? prev + 150 : prev - 100);
         }, 3000);
     };
 
@@ -31,8 +35,8 @@ export default function SpinPage() {
                     </div>
                     <div>
                         <h1 className={styles.title}>Farcaster <span className="text-primary">Roulette</span></h1>
-                        <div className="flex items-center gap-2">
-                            <span className="w-2 h-2 rounded-full bg-green-500 block"></span>
+                        <div className={styles.networkStatusRow}>
+                            <span className={styles.networkDot}></span>
                             <span className={styles.networkStatus}>Network Live</span>
                         </div>
                     </div>
@@ -40,17 +44,20 @@ export default function SpinPage() {
 
                 <div className={styles.balanceContainer}>
                     <div className={`${styles.balanceBox} glass-morphism`}>
-                        <div className="flex flex-col items-end">
+                        <div className={styles.balanceInfo}>
                             <span className={styles.balanceLabel}>Balance</span>
-                            <span className={styles.balanceValue}>5,420 WARPS</span>
+                            <span className={styles.balanceValue}>{balance.toLocaleString()} WARPS</span>
                         </div>
                         <div className={styles.balanceIcon}>
                             <span className="material-symbols-outlined">bolt</span>
                         </div>
                     </div>
-                    {/* Avatar placeholder */}
                     <div className={styles.avatar}>
-                        <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuBX0U2dhk6dVb1vs7oMtloybq7L9-KBKsfY3yzR25eiZf6VbaBugDaZ8i3uK8no3Y4qWxlCK1VQC7v5WTKP8-fXG-61Iy-99Y3-LFZlkXiX-qMx7sHm5Fr_mUN2nJlx8-p_VYm-r6hvHAOVN_-ovovIrIBDXdzIMPLuiSn0E_psL-vuqUfCxyr2J3yJQ_rC45vHaESqdJGA9fL-eq0s6SNoErfbbXgErsK1d7X7lPBghUygQmOnonPjzP49eree_AP96ANo97tr3yow" alt="User" />
+                        {user?.pfpUrl ? (
+                            <img src={user.pfpUrl} alt={user.displayName || user.username || 'User'} />
+                        ) : (
+                            <span className="material-symbols-outlined" style={{ fontSize: 24, color: 'var(--text-secondary)' }}>person</span>
+                        )}
                     </div>
                 </div>
             </header>
@@ -82,7 +89,7 @@ export default function SpinPage() {
                         </div>
                         <div className={`${styles.statBox} glass-morphism`}>
                             <span className={styles.statLabel}>Bet</span>
-                            <span className={`${styles.statValue} text-primary`}>100</span>
+                            <span className={`${styles.statValue}`} style={{ color: 'var(--primary)' }}>100</span>
                         </div>
                         <div className={`${styles.statBox} glass-morphism`}>
                             <span className={styles.statLabel}>Chance</span>

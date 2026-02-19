@@ -42,12 +42,32 @@
     line-height: 1.2;
 }
 
+.networkStatusRow {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.networkDot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background-color: #22c55e;
+    display: block;
+}
+
 .networkStatus {
     font-size: 0.625rem;
     text-transform: uppercase;
     letter-spacing: 0.1em;
     color: var(--text-secondary);
     font-weight: 700;
+}
+
+.balanceInfo {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
 }
 
 .balanceContainer {
