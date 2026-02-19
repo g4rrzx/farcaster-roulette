@@ -8,7 +8,7 @@ export default function QuestPage() {
         <main className={styles.container}>
             <header className={styles.header}>
                 <h1 className={styles.title}>Quest Board</h1>
-                <p className={styles.subtitle}>Complete tasks to earn more spins</p>
+                <p className={styles.subtitle}>Complete tasks to earn tickets</p>
             </header>
 
             <div className={styles.section}>
@@ -16,21 +16,21 @@ export default function QuestPage() {
                 <div className={styles.grid}>
                     <QuestCard
                         title="Daily Check-in"
-                        description="Log in to claim your free daily reward."
-                        reward="+1 Spin"
+                        description="Log in to claim your free daily ticket."
+                        reward="+1 Ticket 🎟️"
                         actionLabel="Claim"
                         onClaim={() => console.log('Claimed')}
                     />
                     <QuestCard
                         title="Like & Recast"
                         description="Engage with our latest announcement."
-                        reward="+2 Spins"
+                        reward="+1 Ticket 🎟️"
                         actionLabel="Go"
                     />
                     <QuestCard
                         title="Follow @roulette"
                         description="Follow our official account"
-                        reward="+50 WARPS"
+                        reward="+1 Ticket 🎟️"
                         isClaimed={true}
                     />
                 </div>
@@ -42,8 +42,14 @@ export default function QuestPage() {
                     <QuestCard
                         title="Winning Streak"
                         description="Win 3 in a row."
-                        reward="+5 Spins"
+                        reward="+3 Tickets 🎟️"
                         actionLabel="View"
+                    />
+                    <QuestCard
+                        title="Social Butterfly"
+                        description="Invite 3 friends to play."
+                        reward="+5 Tickets 🎟️"
+                        actionLabel="Invite"
                     />
                 </div>
             </div>

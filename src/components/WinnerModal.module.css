@@ -1,0 +1,199 @@
+.overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(2, 6, 23, 0.9);
+    backdrop-filter: blur(12px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    padding: 24px;
+    animation: fadeIn 0.3s ease-out;
+    overflow: hidden;
+}
+
+.confettiContainer {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.confetti {
+    position: absolute;
+    top: -10px;
+    width: 8px;
+    height: 8px;
+    border-radius: 2px;
+    animation: fall linear forwards;
+    opacity: 0.9;
+}
+
+@keyframes fall {
+    0% {
+        transform: translateY(-10vh) rotate(0deg);
+        opacity: 1;
+    }
+
+    100% {
+        transform: translateY(110vh) rotate(720deg);
+        opacity: 0;
+    }
+}
+
+.modal {
+    max-width: 360px;
+    width: 100%;
+    border-radius: 24px;
+    padding: 36px 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border: 1px solid rgba(0, 242, 255, 0.3);
+    box-shadow: 0 0 40px rgba(0, 242, 255, 0.15), 0 0 80px rgba(168, 85, 247, 0.1);
+    position: relative;
+    z-index: 1;
+}
+
+.trophy {
+    font-size: 64px;
+    animation: bounce 1s ease-in-out infinite;
+}
+
+@keyframes bounce {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-8px);
+    }
+}
+
+.title {
+    font-size: 28px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    background: linear-gradient(135deg, var(--primary), var(--accent-purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: none;
+}
+
+.rewardBox {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 20px 32px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, rgba(0, 242, 255, 0.1), rgba(168, 85, 247, 0.1));
+    border: 1px solid rgba(0, 242, 255, 0.2);
+    width: 100%;
+}
+
+.rewardLabel {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--text-secondary);
+    font-weight: 700;
+}
+
+.rewardAmount {
+    font-size: 36px;
+    font-weight: 900;
+    color: var(--primary);
+    text-shadow: 0 0 20px rgba(0, 242, 255, 0.5);
+}
+
+.rewardToken {
+    font-size: 13px;
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+
+.txSection {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    width: 100%;
+}
+
+.txLabel {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--text-secondary);
+    font-weight: 700;
+}
+
+.txHash {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--primary);
+    font-family: monospace;
+    padding: 6px 12px;
+    border-radius: 8px;
+    background: rgba(0, 242, 255, 0.05);
+    border: 1px solid rgba(0, 242, 255, 0.15);
+    text-decoration: none;
+    transition: background 0.15s;
+}
+
+.txHash:hover {
+    background: rgba(0, 242, 255, 0.1);
+}
+
+.ctaButton {
+    width: 100%;
+    padding: 14px;
+    border-radius: 14px;
+    border: none;
+    background: linear-gradient(135deg, var(--primary), var(--accent-purple));
+    color: #020617;
+    font-size: 16px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+    margin-top: 4px;
+}
+
+.ctaButton:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 30px rgba(0, 242, 255, 0.3);
+}
+
+.ctaButton:active {
+    transform: scale(0.98);
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes popIn {
+    from {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}

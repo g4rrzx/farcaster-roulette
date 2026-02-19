@@ -14,20 +14,14 @@ interface HistoryItem {
 
 export default function ProfilPage() {
     const { user } = useAuth();
-    const [stats, setStats] = useState({ wins: 0, losses: 0, winRate: 0 });
+    const [stats, setStats] = useState({ wins: 0, spins: 0, ticketsClaimed: 0 });
     const [history, setHistory] = useState<HistoryItem[]>([]);
 
     useEffect(() => {
-        // TODO: Fetch from backend API when connected
-        // For now, start with empty stats — will be populated from real spins
-        setStats({ wins: 0, losses: 0, winRate: 0 });
+        // TODO: Fetch from backend API
+        setStats({ wins: 0, spins: 0, ticketsClaimed: 0 });
         setHistory([]);
     }, []);
-
-    const truncateAddress = (address?: string) => {
-        if (!address) return '—';
-        return `${address.slice(0, 6)}...${address.slice(-4)}`;
-    };
 
     return (
         <main className={styles.container}>
@@ -52,8 +46,8 @@ export default function ProfilPage() {
 
             <div className={styles.statsGrid}>
                 <StatBox label="Wins" value={stats.wins} highlight />
-                <StatBox label="Losses" value={stats.losses} />
-                <StatBox label="Win Rate" value={`${stats.winRate}%`} />
+                <StatBox label="Spins" value={stats.spins} />
+                <StatBox label="Tickets" value={stats.ticketsClaimed} />
             </div>
 
             <div className={styles.section}>
