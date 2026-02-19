@@ -1,53 +1,128 @@
-.spinButton {
+.container {
+    position: relative;
+    width: 140px;
+    height: 140px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 1rem 0;
+}
+
+.button {
     position: relative;
     width: 100%;
-    padding: 1.25rem;
-    border-radius: 0.75rem;
-    background: var(--primary);
+    height: 100%;
+    border-radius: 50%;
     border: none;
+    background: radial-gradient(circle at 30% 30%, #4f4f4f, #1a1a1a);
+    box-shadow:
+        0 10px 20px rgba(0, 0, 0, 0.5),
+        inset 0 4px 8px rgba(255, 255, 255, 0.2),
+        inset 0 -4px 8px rgba(0, 0, 0, 0.5);
     cursor: pointer;
-    overflow: hidden;
-    transition: all 0.2s ease;
-    box-shadow: 0 0 30px rgba(0, 242, 255, 0.4);
+    transition: transform 0.1s, box-shadow 0.1s;
+    z-index: 10;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 8px;
+    /* Rim thickness */
 }
 
-.spinButton:hover:not(:disabled) {
-    background: rgba(0, 242, 255, 0.9);
+/* The actual pressable part */
+.innerRing {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, var(--primary), #0891b2);
+    box-shadow:
+        inset 0 4px 12px rgba(255, 255, 255, 0.4),
+        inset 0 -4px 12px rgba(0, 0, 0, 0.6),
+        0 0 15px var(--primary-glow);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 2px solid rgba(255, 255, 255, 0.1);
 }
 
-.spinButton:active:not(:disabled) {
-    transform: scale(0.95);
-}
-
-.spinButton:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    filter: grayscale(1);
-}
-
-.shimmer {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(to right,
-            transparent 0%,
-            rgba(255, 255, 255, 0.2) 50%,
-            transparent 100%);
-    transform: translateX(-100%);
-    transition: transform 0.7s ease;
-}
-
-.spinButton:hover .shimmer {
-    transform: translateX(100%);
-}
-
-.label {
-    position: relative;
-    color: var(--background-dark);
+.text {
     font-size: 1.5rem;
     font-weight: 900;
+    color: #ffffff;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
     letter-spacing: 0.1em;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.75rem;
+}
+
+/* Hover State */
+.button:not(.disabled):hover {
+    transform: translateY(-2px);
+    box-shadow:
+        0 15px 30px rgba(0, 242, 255, 0.3),
+        inset 0 4px 8px rgba(255, 255, 255, 0.2),
+        inset 0 -4px 8px rgba(0, 0, 0, 0.5);
+}
+
+.button:not(.disabled):hover .innerRing {
+    background: radial-gradient(circle at 30% 30%, #22d3ee, #06b6d4);
+    box-shadow:
+        inset 0 4px 12px rgba(255, 255, 255, 0.5),
+        inset 0 -4px 12px rgba(0, 0, 0, 0.6),
+        0 0 25px var(--primary-glow);
+}
+
+/* Active/Pressed State */
+.button:not(.disabled):active {
+    transform: translateY(4px);
+    box-shadow:
+        0 2px 10px rgba(0, 0, 0, 0.5),
+        inset 0 4px 8px rgba(255, 255, 255, 0.1),
+        inset 0 -4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.button:not(.disabled):active .innerRing {
+    background: radial-gradient(circle at 30% 30%, #0891b2, #0e7490);
+    box-shadow:
+        inset 0 6px 15px rgba(0, 0, 0, 0.4),
+        0 0 10px var(--primary-glow);
+}
+
+/* Disabled State */
+.disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
+    filter: grayscale(0.8);
+}
+
+.disabled .innerRing {
+    background: radial-gradient(circle at 30% 30%, #475569, #1e293b);
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.5);
+}
+
+.glow {
+    position: absolute;
+    inset: -20px;
+    background: radial-gradient(circle, var(--primary-glow) 0%, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.3s;
+    z-index: 0;
+    pointer-events: none;
+}
+
+.activeGlow {
+    opacity: 0.4;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 0.3;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 0.6;
+        transform: scale(1.1);
+    }
 }

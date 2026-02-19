@@ -10,17 +10,17 @@ interface RouletteRingProps {
 
 export default function RouletteRing({ isSpinning, result }: RouletteRingProps) {
     const wheelRef = useRef<HTMLDivElement>(null);
+    const pointerRef = useRef<HTMLDivElement>(null);
     const rotationRef = useRef(0);
     const animationFrameRef = useRef<number>(0);
     const lastTimeRef = useRef<number>(0);
     const speedRef = useRef(0);
-    // State to trigger re-render for final landing position class if needed, 
-    // currently handling via direct DOM manipulation for performance.
+    const lastTickRef = useRef(0);
 
     // Config
-    const MAX_SPEED = 800; // degrees per second
-    const ACCELERATION = 400;
-    const DECELERATION = 200; // degrees per second squared
+    const MAX_SPEED = 1000; // degrees per second
+    const ACCELERATION = 500;
+    const SEGMENT_ANGLE = 45; // 360 / 8 segments
 
     useEffect(() => {
         if (isSpinning) {
@@ -33,20 +33,7 @@ export default function RouletteRing({ isSpinning, result }: RouletteRingProps) 
                 const deltaTime = (time - lastTimeRef.current) / 1000;
                 lastTimeRef.current = time;
 
-                if (result) {
-                    // Deceleration Phase handled separately or here?
-                    // Actually, if result is set, we need to calculate Target.
-                    // But here we just keep spinning until the parent tells us result is ready?
-                    // The parent sets result AND setIsSpinning(false) usually together after delay.
-                    // Ah, wait. checking props..
-                    // Parent sets result THEN sets isSpinning(false)? 
-                    // In SpinPage: receives result, THEN sets isSpinning(false).
-                    // Actually in SpinPage mock: 
-                    // setTimeout(() => { setIsSpinning(false); setResult(...) }, 3000);
-                    // This implies they happen same time.
-                }
-
-                // Accelerate to Max Speed
+                // Accelerate
                 if (speedRef.current < MAX_SPEED) {
                     speedRef.current += ACCELERATION * deltaTime;
                 } else {
@@ -54,6 +41,13 @@ export default function RouletteRing({ isSpinning, result }: RouletteRingProps) 
                 }
 
                 rotationRef.current += speedRef.current * deltaTime;
+
+                // Ticking Logic
+                const currentAngle = rotationRef.current;
+                if (currentAngle - lastTickRef.current >= SEGMENT_ANGLE) {
+                    lastTickRef.current = currentAngle;
+                    triggerTick();
+                }
 
                 if (wheelRef.current) {
                     wheelRef.current.style.transform = `rotate(${rotationRef.current % 360}deg)`;
@@ -64,16 +58,13 @@ export default function RouletteRing({ isSpinning, result }: RouletteRingProps) 
 
             animationFrameRef.current = requestAnimationFrame(animate);
         } else {
-            // Stop Loop
             if (animationFrameRef.current) {
                 cancelAnimationFrame(animationFrameRef.current);
             }
 
-            // If we have a result, transition to it.
             if (result) {
                 handleStop(result);
             } else {
-                // Reset
                 rotationRef.current = 0;
                 if (wheelRef.current) wheelRef.current.style.transform = 'rotate(0deg)';
             }
@@ -82,38 +73,28 @@ export default function RouletteRing({ isSpinning, result }: RouletteRingProps) 
         return () => cancelAnimationFrame(animationFrameRef.current);
     }, [isSpinning, result]);
 
-    const handleStop = (res: 'win' | 'loss') => {
-        // Target Segment Logic
-        // 0deg at top = start of first segment (0-45).
-        // Center of segments:
-        // Win (Cyan): 22.5, 202.5 (+180)
-        // Win (Purple): 112.5, 292.5
-        // Loss (Dark): 67.5, 157.5, 247.5, 337.5
+    const triggerTick = () => {
+        if (pointerRef.current) {
+            // Reset animation
+            pointerRef.current.classList.remove(styles.ticking);
+            void pointerRef.current.offsetWidth; // Trigger reflow
+            pointerRef.current.classList.add(styles.ticking);
+        }
+    };
 
+    const handleStop = (res: 'win' | 'loss') => {
         const WIN_ANGLES = [22.5, 112.5, 202.5, 292.5];
         const LOSS_ANGLES = [67.5, 157.5, 247.5, 337.5];
 
         const targets = res === 'win' ? WIN_ANGLES : LOSS_ANGLES;
         const randomTarget = targets[Math.floor(Math.random() * targets.length)];
 
-        // Calculate rotation needed to bring randomTarget to Top (0deg)
-        // Visual Angle V = (Rotation - Target) ? No.
-        // Rotation R. Point P at angle A on wheel is now at R+A.
-        // We want P=randomTarget to be at 0 (or 360).
-        // R + randomTarget = 360 * N
-        // R = 360*N - randomTarget.
-
-        // Current Rotation
+        // Calculate final rotation
         const currentRot = rotationRef.current;
+        const extraSpins = 3 * 360; // 3 full spins minimum
 
-        // Minimum extra spins
-        const extraSpins = 3 * 360;
-
-        // Next multiple of 360 greater than current + extra
-        // Actually we just want a target R > current + extra
-        // such that (R + randomTarget) % 360 == 0
-
-        // (R + T) % 360 = 0  => R % 360 = (360 - T) % 360.
+        // We want (finalRot + randomTarget) % 360 = 0 (top position)
+        // finalRot = N*360 - randomTarget
         const targetMod = (360 - randomTarget) % 360;
         const currentMod = currentRot % 360;
 
@@ -122,48 +103,68 @@ export default function RouletteRing({ isSpinning, result }: RouletteRingProps) 
 
         const finalRot = currentRot + diff + extraSpins;
 
-        // Animate to finalRot using CSS transition for smooth ease-out
         if (wheelRef.current) {
-            // Force reflow/style update for current pos
             wheelRef.current.style.transform = `rotate(${currentRot}deg)`;
-            // Trigger reflow
             void wheelRef.current.offsetWidth;
 
-            // Add transition
-            wheelRef.current.style.transition = 'transform 3s cubic-bezier(0.1, 0, 0.2, 1)';
+            // Use CSS transition for smooth landing
+            wheelRef.current.style.transition = 'transform 3.5s cubic-bezier(0.15, 0, 0.15, 1)'; // Custom eaing
             wheelRef.current.style.transform = `rotate(${finalRot}deg)`;
 
-            // Update ref to final so next spin starts from here
             rotationRef.current = finalRot;
         }
     };
 
+    // Reset transition when spinning starts again
+    useEffect(() => {
+        if (isSpinning && wheelRef.current) {
+            wheelRef.current.style.transition = 'none';
+        }
+    }, [isSpinning]);
+
     return (
         <div className={styles.container}>
-            {/* Outer Glow Ring */}
-            <div className={`${styles.outerGlow} pulse-effect`}></div>
-            <div className={`${styles.outerGlowDelayed} pulse-effect`}></div>
+            {/* Background Glow */}
+            <div className={styles.ambientGlow}></div>
 
-            {/* Main Wheel */}
-            <div
-                ref={wheelRef}
-                className={styles.wheel}
-            // Initial static style removed, handled by JS
-            >
-                {/* Segments (Conic Gradient) */}
+            {/* The Rotating Wheel */}
+            <div ref={wheelRef} className={styles.wheel}>
+
+                {/* Outer Rim with Bolts */}
+                <div className={styles.rim}>
+                    {Array.from({ length: 12 }).map((_, i) => (
+                        <div key={i} className={styles.bolt} style={{ transform: `rotate(${i * 30}deg)` }}></div>
+                    ))}
+                </div>
+
+                {/* Segments Layer */}
                 <div className={styles.segments}></div>
 
-                {/* Inner Ring */}
-                <div className={styles.innerRing}>
-                    {/* Center Hub */}
-                    <div className={`${styles.hub} glass-morphism`}>
-                        <span className={`material-symbols-outlined ${styles.hubIcon} neon-text-glow`}>flare</span>
-                    </div>
+                {/* Light Divider Lines */}
+                <div className={styles.gridLines}></div>
+
+                {/* Inner Shadow for depth */}
+                <div className={styles.innerShadow}></div>
+            </div>
+
+            {/* Static Center Hub (Reactor) */}
+            <div className={styles.hub}>
+                <div className={styles.reactorCore}>
+                    <div className={styles.reactorRing}></div>
+                    <span className="material-symbols-outlined" style={{ fontSize: 32, color: '#00f2ff' }}>
+                        flare
+                    </span>
                 </div>
             </div>
 
-            {/* Indicator */}
-            <div className={styles.indicator}></div>
+            {/* Pointer / Flapper */}
+            <div ref={pointerRef} className={styles.pointerContainer}>
+                <div className={styles.pointerBody}></div>
+                <div className={styles.pointerTip}></div>
+            </div>
+
+            {/* Overlay Reflection */}
+            <div className={styles.glassReflection}></div>
         </div>
     );
 }

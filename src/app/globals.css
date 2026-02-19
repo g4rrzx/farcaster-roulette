@@ -1,19 +1,10 @@
 /* CSS Variables and Global Resets */
 
-/* 
-  Even though we are not using Tailwind for everything, we keep the directives 
-  if user wants to use it later, but our primary styling will be CSS Modules 
-  and standard CSS variables as requested. 
-  Actually, I will REMOVE Tailwind directives since user asked for Vanilla CSS focus 
-  and I didn't verify if Tailwind is installed (I used --no-tailwind flag). 
-  Wait, I used --no-tailwind in the command. So I should NOT include these directives.
-*/
-
 :root {
   --primary: #00f2ff;
-  --primary-rgb: 0, 242, 255;
+  --primary-glow: rgba(0, 242, 255, 0.5);
   --accent-purple: #a855f7;
-  --background-light: #f5f8f8;
+  --accent-purple-glow: rgba(168, 85, 247, 0.5);
   --background-dark: #020617;
   --surface-dark: #0f172a;
   --text-primary: #f8fafc;
@@ -33,24 +24,63 @@ body {
   color: var(--text-primary);
   font-family: var(--font-display);
   overflow-x: hidden;
-  /* overflow-y: hidden;  We might want scroll for Quest/Profile */
+  min-height: 100vh;
+  position: relative;
 }
 
-/* Utilities derived from code.html */
-.grid-bg {
-  background-image: radial-gradient(circle, rgba(0, 242, 255, 0.05) 1px, transparent 1px);
+/* Dynamic Cyber Background */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(168, 85, 247, 0.15), transparent 60%),
+    radial-gradient(circle at 80% 80%, rgba(0, 242, 255, 0.1), transparent 50%);
+  z-index: -2;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
   background-size: 40px 40px;
+  background-position: center top;
+  perspective: 1000px;
+  transform-style: preserve-3d;
+  animation: gridMove 20s linear infinite;
+  z-index: -1;
+  mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
+  -webkit-mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
 }
 
+@keyframes gridMove {
+  0% {
+    transform: translateY(0) scale(1.1);
+  }
+
+  50% {
+    transform: translateY(20px) scale(1.15);
+  }
+
+  100% {
+    transform: translateY(0) scale(1.1);
+  }
+}
+
+/* Glassmorphism Utility */
 .glass-morphism {
-  background: rgba(15, 23, 42, 0.8);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
 }
 
 .neon-text-glow {
-  text-shadow: 0 0 10px rgba(0, 242, 255, 0.5);
+  text-shadow: 0 0 10px var(--primary-glow);
 }
 
 /* Animations */
@@ -75,14 +105,22 @@ body {
   animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
 
-  to {
-    transform: rotate(360deg);
-  }
+::-webkit-scrollbar-track {
+  background: var(--background-dark);
+}
+
+::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #475569;
 }
 
 /* Material Symbols */
