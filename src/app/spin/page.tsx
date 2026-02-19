@@ -6,6 +6,7 @@ import RouletteRing from '@/components/RouletteRing';
 import WelcomeModal from '@/components/WelcomeModal';
 import WinnerModal from '@/components/WinnerModal';
 import { useAuth } from '@/components/AuthProvider';
+import JackpotTicker from '@/components/JackpotTicker';
 
 export default function SpinPage() {
     const { user } = useAuth();
@@ -59,6 +60,7 @@ export default function SpinPage() {
 
     return (
         <main className={styles.mainContainer}>
+            <JackpotTicker />
             <WelcomeModal />
 
             <WinnerModal

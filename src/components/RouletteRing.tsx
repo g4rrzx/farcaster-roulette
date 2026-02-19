@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import styles from './RouletteRing.module.css';
 import SpinButton from './SpinButton';
+import { triggerHaptic } from '@/utils/haptics';
 
 interface RouletteRingProps {
     isSpinning: boolean;
@@ -76,14 +77,7 @@ export default function RouletteRing({ isSpinning, result, onSpin, disabled }: R
         return () => cancelAnimationFrame(animationFrameRef.current);
     }, [isSpinning, result]);
 
-    const triggerTick = () => {
-        if (pointerRef.current) {
-            // Reset animation
-            pointerRef.current.classList.remove(styles.ticking);
-            void pointerRef.current.offsetWidth; // Trigger reflow
-            pointerRef.current.classList.add(styles.ticking);
-        }
-    };
+
 
     const handleStop = (res: 'win' | 'loss') => {
         const WIN_ANGLES = [22.5, 112.5, 202.5, 292.5];
@@ -124,6 +118,18 @@ export default function RouletteRing({ isSpinning, result, onSpin, disabled }: R
             wheelRef.current.style.transition = 'none';
         }
     }, [isSpinning]);
+
+    const triggerTick = () => {
+        // Trigger Haptic Feedback
+        triggerHaptic('tick');
+
+        if (pointerRef.current) {
+            // Reset animation
+            pointerRef.current.classList.remove(styles.ticking);
+            void pointerRef.current.offsetWidth; // Trigger reflow
+            pointerRef.current.classList.add(styles.ticking);
+        }
+    };
 
     return (
         <div className={styles.container}>
