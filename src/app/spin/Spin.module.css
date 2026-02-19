@@ -1,0 +1,195 @@
+.mainContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 100%;
+    padding-bottom: 6rem;
+    /* Space for navbar */
+    position: relative;
+}
+
+.header {
+    width: 100%;
+    max-width: 1024px;
+    padding: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 10;
+}
+
+.logoContainer {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.logoIcon {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 0.5rem;
+    background: rgba(0, 242, 255, 0.2);
+    border: 1px solid rgba(0, 242, 255, 0.3);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.networkStatus {
+    font-size: 0.625rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-secondary);
+    font-weight: 700;
+}
+
+.balanceContainer {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.balanceBox {
+    padding: 0.5rem 1rem;
+    border-radius: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.balanceLabel {
+    font-size: 0.625rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    font-weight: 700;
+}
+
+.balanceValue {
+    font-size: 0.875rem;
+    font-weight: 900;
+    color: var(--primary);
+}
+
+.balanceIcon {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    background: rgba(0, 242, 255, 0.1);
+    border: 1px solid rgba(0, 242, 255, 0.2);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: var(--primary);
+}
+
+.avatar {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    border: 2px solid var(--primary);
+    overflow: hidden;
+}
+
+.avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.gameArea {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 800px;
+    padding: 1rem;
+}
+
+.controlsArea {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+    width: 100%;
+    max-width: 24rem;
+}
+
+.statusMessage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 2.5rem;
+}
+
+.statusText {
+    color: var(--primary);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    font-size: 0.75rem;
+    font-style: italic;
+}
+
+.loaderBar {
+    height: 0.25rem;
+    width: 6rem;
+    background: var(--surface-dark);
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.loaderProgress {
+    height: 100%;
+    width: 60%;
+    background: var(--primary);
+    border-radius: 999px;
+    box-shadow: 0 0 10px #00f2ff;
+    animation: shimmer 1s infinite linear;
+}
+
+@keyframes shimmer {
+    0% {
+        transform: translateX(-100%);
+    }
+
+    100% {
+        transform: translateX(200%);
+    }
+}
+
+.statRow {
+    display: flex;
+    gap: 0.75rem;
+    width: 100%;
+}
+
+.statBox {
+    flex: 1;
+    border-radius: 0.5rem;
+    padding: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.statLabel {
+    font-size: 0.625rem;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--text-secondary);
+}
+
+.statValue {
+    font-size: 1.125rem;
+    font-weight: 700;
+}
