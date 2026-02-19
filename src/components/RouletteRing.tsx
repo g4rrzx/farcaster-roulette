@@ -2,13 +2,16 @@
 
 import { useEffect, useRef, useState } from 'react';
 import styles from './RouletteRing.module.css';
+import SpinButton from './SpinButton';
 
 interface RouletteRingProps {
     isSpinning: boolean;
     result: 'win' | 'loss' | null;
+    onSpin: () => void;
+    disabled?: boolean;
 }
 
-export default function RouletteRing({ isSpinning, result }: RouletteRingProps) {
+export default function RouletteRing({ isSpinning, result, onSpin, disabled }: RouletteRingProps) {
     const wheelRef = useRef<HTMLDivElement>(null);
     const pointerRef = useRef<HTMLDivElement>(null);
     const rotationRef = useRef(0);
@@ -147,14 +150,9 @@ export default function RouletteRing({ isSpinning, result }: RouletteRingProps) 
                 <div className={styles.innerShadow}></div>
             </div>
 
-            {/* Static Center Hub (Reactor) */}
+            {/* Static Center Hub (Interactive Button) */}
             <div className={styles.hub}>
-                <div className={styles.reactorCore}>
-                    <div className={styles.reactorRing}></div>
-                    <span className="material-symbols-outlined" style={{ fontSize: 32, color: '#00f2ff' }}>
-                        flare
-                    </span>
-                </div>
+                <SpinButton onClick={onSpin} disabled={disabled} />
             </div>
 
             {/* Pointer / Flapper */}

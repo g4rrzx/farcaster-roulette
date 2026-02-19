@@ -3,7 +3,6 @@
 import { useState, useCallback } from 'react';
 import styles from './Spin.module.css';
 import RouletteRing from '@/components/RouletteRing';
-import SpinButton from '@/components/SpinButton';
 import WelcomeModal from '@/components/WelcomeModal';
 import WinnerModal from '@/components/WinnerModal';
 import { useAuth } from '@/components/AuthProvider';
@@ -111,7 +110,12 @@ export default function SpinPage() {
             )}
 
             <div className={styles.gameArea}>
-                <RouletteRing isSpinning={isSpinning} result={result} />
+                <RouletteRing
+                    isSpinning={isSpinning}
+                    result={result}
+                    onSpin={handleSpin}
+                    disabled={tickets <= 0 || isSpinning}
+                />
 
                 <div className={styles.controlsArea}>
                     <div className={styles.statusMessage}>
@@ -135,9 +139,7 @@ export default function SpinPage() {
                         )}
                     </div>
 
-                    {tickets > 0 ? (
-                        <SpinButton onClick={handleSpin} disabled={isSpinning} />
-                    ) : (
+                    {tickets <= 0 && (
                         <button
                             className={styles.claimButton}
                             onClick={handleClaimTicket}
