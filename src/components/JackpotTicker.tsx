@@ -3,14 +3,6 @@
 import { useEffect, useState } from "react";
 import styles from "./JackpotTicker.module.css";
 
-const MOCK_WINS = [
-    { id: 1, user: "@dwr.eth", amount: "5,000", token: "DEGEN" },
-    { id: 2, user: "@vbuterin", amount: "1,000", token: "HIGHER" },
-    { id: 3, user: "@jessepollak", amount: "500", token: "TN100x" },
-    { id: 4, user: "@pugson", amount: "10,000", token: "MOXIE" },
-    { id: 5, user: "@betashop.eth", amount: "2,500", token: "HAM" },
-];
-
 interface WinRecord {
     id: string | number;
     user: string;
@@ -20,7 +12,7 @@ interface WinRecord {
 }
 
 export default function JackpotTicker() {
-    const [wins, setWins] = useState<WinRecord[]>(MOCK_WINS);
+    const [wins, setWins] = useState<WinRecord[]>([]);
 
     useEffect(() => {
         const fetchRecentWins = async () => {
@@ -42,6 +34,8 @@ export default function JackpotTicker() {
         const interval = setInterval(fetchRecentWins, 30000);
         return () => clearInterval(interval);
     }, []);
+
+    if (wins.length === 0) return null;
 
     return (
         <div className={styles.container}>
