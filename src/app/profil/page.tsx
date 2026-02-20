@@ -14,7 +14,7 @@ interface HistoryItem {
 }
 
 export default function ProfilPage() {
-    const { user } = useAuth();
+    const { user, walletAddress, setWalletAddress } = useAuth();
     const [stats] = useState({ wins: 0, spins: 0, ticketsClaimed: 0 });
     const [history] = useState<HistoryItem[]>([]);
 
@@ -36,6 +36,37 @@ export default function ProfilPage() {
     );
 
     if (!isClient) return null;
+
+    const handleManualConnect = async () => {
+        try {
+            import('@farcaster/frame-sdk').then(async ({ default: sdk }) => {
+                const provider = await sdk.wallet.ethProvider;
+                const accounts = await provider.request({ method: "eth_requestAccounts" });
+                if (accounts && (accounts as string[])[0]) {
+                    setWalletAddress((accounts as string[])[0]);
+                }
+            });
+        } catch (e) {
+            console.error(e);
+            alert("Failed to connect wallet.");
+        }
+    };
+
+    if (!user || !walletAddress) {
+        return (
+            <main className={styles.container} style={{ justifyContent: 'center', alignItems: 'center' }}>
+                <div className={styles.ambientGlow}></div>
+                <div style={{ textAlign: 'center', zIndex: 10, padding: '2rem' }}>
+                    <span className="material-symbols-outlined neon-text-glow" style={{ fontSize: 64, color: 'var(--text-primary)', marginBottom: '1rem' }}>account_balance_wallet</span>
+                    <h1 style={{ marginBottom: '1rem' }}>Wallet Not Connected</h1>
+                    <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem' }}>Please connect your unified Farcaster wallet to view your profile and start spinning.</p>
+                    <button onClick={handleManualConnect} className="btn-primary" style={{ animation: 'none' }}>
+                        Connect Farcaster Wallet
+                    </button>
+                </div>
+            </main>
+        );
+    }
 
     return (
         <main className={styles.container}>

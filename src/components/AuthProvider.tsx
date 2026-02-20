@@ -84,6 +84,18 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
                     }
                 }
 
+                // Explicitly request the user's Farcaster linked wallet immediately
+                try {
+                    const provider = await sdk.wallet.ethProvider;
+                    const accounts = await provider.request({ method: "eth_requestAccounts" });
+                    const address = (accounts as string[])[0];
+                    if (address) {
+                        setWalletAddress(address);
+                    }
+                } catch (e) {
+                    console.error("Failed to fetch eth_requestAccounts on load:", e);
+                }
+
                 // Signal to Farcaster that the frame is ready
                 sdk.actions.ready();
             } catch (err) {
@@ -97,7 +109,7 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
         initFarcaster();
     }, []);
 
-    const isConnected = user !== null;
+    const isConnected = user !== null && walletAddress !== null;
 
     return (
         <AuthContext.Provider value={{ user, walletAddress, setWalletAddress, isLoading, isConnected, error, tickets, setTickets }}>

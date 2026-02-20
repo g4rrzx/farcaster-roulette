@@ -12,7 +12,7 @@ import sdk from '@farcaster/frame-sdk';
 import { encodeFunctionData } from 'viem';
 
 export default function SpinPage() {
-    const { user, tickets, setTickets } = useAuth();
+    const { user, walletAddress, setWalletAddress, tickets, setTickets } = useAuth();
     const [isSpinning, setIsSpinning] = useState(false);
     const [result, setResult] = useState<null | 'win' | 'loss' | 'jackpot'>(null);
     const [isClaiming, setIsClaiming] = useState(false);
@@ -23,18 +23,41 @@ export default function SpinPage() {
     const [winData, setWinData] = useState({ amount: "0", txHash: "" });
 
     const handleClaimTicket = useCallback(async () => {
-        if (isClaiming) return;
+        if (isClaiming || !user) return;
         setIsClaiming(true);
 
-        // TODO: Call backend API to claim ticket (anti-spam)
-        // Simulating API delay
-        await new Promise((r) => setTimeout(r, 1200));
-        setTickets((prev) => prev + 1);
-        setIsClaiming(false);
-    }, [isClaiming, setTickets]);
+        try {
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+
+            // Note: Farcaster native frames rely on context signature verification,
+            // but for this MVP backend we are passing the explicit user profile info
+            // to retrieve the updated ticket tally.
+            const res = await fetch(`${apiUrl}/api/users/claim-ticket`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${user.fid}` // Passing FID as simple auth for MVP
+                }
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                if (data.success) {
+                    setTickets(data.tickets);
+                }
+            } else {
+                throw new Error("Failed to claim ticket from server");
+            }
+        } catch (error) {
+            console.error(error);
+            alert("Could not claim ticket. Backend might be unreachable.");
+        } finally {
+            setIsClaiming(false);
+        }
+    }, [isClaiming, user, setTickets]);
 
     const handleSpin = async () => {
-        if (tickets <= 0 || isSpinning) return;
+        if (tickets <= 0 || isSpinning || !user) return;
 
         setIsSpinning(true);
         setResult(null);
@@ -51,9 +74,11 @@ export default function SpinPage() {
             const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
             const prepareRes = await fetch(`${apiUrl}/api/spin/prepare`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ userWallet, nonce: tickets }) // Assuming we track nonce but backend issues one, let's just pass 0 to let backend handle its DB state, actually backend currently requires nonce param. Wait, in smart contract `userSpinNonces` tracks nonce. The backend needs to know it. Actually, backend doesn't know chain nonce yet. Let's pass 0 for now or fetch it from chain.
-                // Wait, backend requires `nonce`. Let's assume backend trusts the frontend passing a unique ID, or we refactor backend to ignore it. We'll pass `tickets` as a dummy nonce for now to satisfy the type.
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${user.fid}`
+                },
+                body: JSON.stringify({ userWallet, nonce: tickets })
             });
             const prepareData = await prepareRes.json();
 
@@ -98,7 +123,10 @@ export default function SpinPage() {
             // 5. Verify the txHash with the backend (waits for confirmation)
             const verifyRes = await fetch(`${apiUrl}/api/spin/verify`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${user.fid}`
+                },
                 body: JSON.stringify({ txHash })
             });
             const verifyData = await verifyRes.json();
@@ -135,6 +163,36 @@ export default function SpinPage() {
             }, 3000); // Ensure the wheel animation completes at least roughly
         }
     };
+
+    const handleManualConnect = async () => {
+        try {
+            import('@farcaster/frame-sdk').then(async ({ default: sdk }) => {
+                const provider = await sdk.wallet.ethProvider;
+                const accounts = await provider.request({ method: "eth_requestAccounts" });
+                if (accounts && (accounts as string[])[0]) {
+                    setWalletAddress((accounts as string[])[0]);
+                }
+            });
+        } catch (e) {
+            console.error(e);
+            alert("Failed to connect wallet.");
+        }
+    };
+
+    if (!user || !walletAddress) {
+        return (
+            <main className={styles.mainContainer} style={{ justifyContent: 'center', alignItems: 'center', height: '100vh', display: 'flex', flexDirection: 'column' }}>
+                <div style={{ textAlign: 'center', zIndex: 10, padding: '2rem' }}>
+                    <span className="material-symbols-outlined neon-text-glow" style={{ fontSize: 64, color: 'var(--text-primary)', marginBottom: '1rem' }}>account_balance_wallet</span>
+                    <h1 style={{ marginBottom: '1rem' }}>Wallet & Farcaster Profile Needed</h1>
+                    <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem' }}>Please connect your unified Farcaster wallet to load the Roulette wheel.</p>
+                    <button onClick={handleManualConnect} className="btn-primary" style={{ animation: 'none' }}>
+                        Connect SDK
+                    </button>
+                </div>
+            </main>
+        );
+    }
 
     return (
         <main className={styles.mainContainer}>
