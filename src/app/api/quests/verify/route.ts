@@ -78,7 +78,7 @@ export async function POST(req: NextRequest) {
                 and(
                     eq(questCompletions.userId, user.id),
                     eq(questCompletions.questId, questId),
-                    sql`${questCompletions.completedAt} >= ${today}`
+                    sql`${questCompletions.completedAt} >= ${today.toISOString()}`
                 )
             );
 
@@ -139,6 +139,8 @@ export async function POST(req: NextRequest) {
     } catch (err: unknown) {
         console.error('Quest verify error:', err);
         const message = err instanceof Error ? err.message : 'Failed to verify quest';
-        return NextResponse.json({ error: message }, { status: 500 });
+        // Clean up error message if it's a raw database error
+        const cleanMessage = message.includes('Failed query') ? 'Database error occurred. Please try again.' : message;
+        return NextResponse.json({ error: cleanMessage }, { status: 500 });
     }
 }
