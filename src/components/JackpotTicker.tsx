@@ -17,7 +17,7 @@ export default function JackpotTicker() {
     useEffect(() => {
         const fetchRecentWins = async () => {
             try {
-                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/spin/recent-wins`);
+                const res = await fetch('/api/spin/recent-wins');
                 if (res.ok) {
                     const data = await res.json();
                     if (data && data.length > 0) {

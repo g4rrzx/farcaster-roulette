@@ -27,12 +27,7 @@ export default function SpinPage() {
         setIsClaiming(true);
 
         try {
-            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
-
-            // Note: Farcaster native frames rely on context signature verification,
-            // but for this MVP backend we are passing the explicit user profile info
-            // to retrieve the updated ticket tally.
-            const res = await fetch(`${apiUrl}/api/users/claim-ticket`, {
+            const res = await fetch('/api/users/claim-ticket', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -71,8 +66,7 @@ export default function SpinPage() {
             if (!userWallet) throw new Error("Could not connect to Farcaster wallet");
 
             // 2. Fetch ECDSA signature and nonce from Backend
-            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
-            const prepareRes = await fetch(`${apiUrl}/api/spin/prepare`, {
+            const prepareRes = await fetch('/api/spin/prepare', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -120,8 +114,7 @@ export default function SpinPage() {
             // 4. Temporarily show wheel spinning locally while we wait for verification 
             // (In a real app, you might wait for verification first before spinning, or spin optimistically then verify)
 
-            // 5. Verify the txHash with the backend (waits for confirmation)
-            const verifyRes = await fetch(`${apiUrl}/api/spin/verify`, {
+            const verifyRes = await fetch('/api/spin/verify', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
