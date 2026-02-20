@@ -75,12 +75,12 @@ export default function SpinPage() {
             const txHash = await provider.request({
                 method: "eth_sendTransaction",
                 params: [{
-                    to: contractAddress,
+                    to: contractAddress as `0x${string}`,
                     data: callData,
                     value: `0x${BigInt(spinFee).toString(16)}`,
-                    chainId: "0xa4b1"
+                    chainId: 42161 as any // Farcaster requires integer, but Viem/EIP-1193 types expect hex string
                 }]
-            }) as string;
+            }) as `0x${string}`;
 
             // 5. Verify on backend
             const verifyRes = await fetch('/api/spin/verify', {
