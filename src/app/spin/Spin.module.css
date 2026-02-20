@@ -4,8 +4,10 @@
     align-items: center;
     width: 100%;
     max-width: 100%;
+    min-height: 100dvh;
     padding-bottom: 6rem;
     position: relative;
+    overflow-x: hidden;
 }
 
 .header {
