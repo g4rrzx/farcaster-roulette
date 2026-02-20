@@ -22,7 +22,7 @@ export default function WinnerModal({
         : "Pending...";
 
     const explorerUrl = txHash
-        ? `https://basescan.org/tx/${txHash}`
+        ? `https://arbiscan.io/tx/${txHash}`
         : "#";
 
     return (
