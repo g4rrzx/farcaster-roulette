@@ -37,8 +37,8 @@ export async function POST(req: NextRequest) {
         const payload = await prepareSpin(user.id, userWallet, nonce);
         return NextResponse.json({ success: true, ...payload });
 
-    } catch (err: any) {
-        const message = err.message || 'Signature generation failed';
+    } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : 'Signature generation failed';
         const statusCode = message.includes('Insufficient') ? 400 : 500;
         return NextResponse.json({ success: false, error: message }, { status: statusCode });
     }

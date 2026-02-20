@@ -102,7 +102,6 @@ export async function verifySpinTransaction(userId: string, txHash: string) {
 
     let rewardAmount = BigInt(0);
     let resultType = 0; // LOSE
-    let feePaid = BigInt(0);
 
     for (const log of receipt.logs) {
         if (log.topics[0] === spinEventSignature) {
@@ -114,7 +113,6 @@ export async function verifySpinTransaction(userId: string, txHash: string) {
                 log.data
             );
 
-            feePaid = decoded[0];
             rewardAmount = decoded[1];
             resultType = decoded[2];
             break;

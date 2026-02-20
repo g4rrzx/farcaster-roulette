@@ -30,8 +30,9 @@ export async function POST(req: NextRequest) {
 
         const result = await verifySpinTransaction(user.id, txHash);
         return NextResponse.json(result);
-    } catch (err: any) {
+    } catch (err: unknown) {
         console.error('Spin verification error:', err);
-        return NextResponse.json({ success: false, error: err.message || 'Verification failed' }, { status: 500 });
+        const message = err instanceof Error ? err.message : 'Verification failed';
+        return NextResponse.json({ success: false, error: message }, { status: 500 });
     }
 }

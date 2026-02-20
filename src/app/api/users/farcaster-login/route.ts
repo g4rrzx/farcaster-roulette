@@ -22,8 +22,9 @@ export async function POST(req: NextRequest) {
                 tickets: user.freeSpins,
             }
         });
-    } catch (err: any) {
+    } catch (err: unknown) {
         console.error('Farcaster login error:', err);
-        return NextResponse.json({ error: err.message || 'Failed to login via Farcaster' }, { status: 500 });
+        const message = err instanceof Error ? err.message : 'Failed to login via Farcaster';
+        return NextResponse.json({ error: message }, { status: 500 });
     }
 }

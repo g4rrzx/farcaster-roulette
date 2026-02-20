@@ -26,7 +26,6 @@ export default function ProfilPage() {
             duration: `${5 + Math.random() * 5}s`,
         }));
     });
-    const [isMounted, setIsMounted] = useState(false);
 
 
     const isClient = useSyncExternalStore(

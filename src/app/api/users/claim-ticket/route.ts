@@ -30,8 +30,9 @@ export async function POST(req: NextRequest) {
             .returning({ tickets: users.freeSpins });
 
         return NextResponse.json({ success: true, tickets: updatedUser.tickets });
-    } catch (err: any) {
+    } catch (err: unknown) {
         console.error('Claim ticket error:', err);
-        return NextResponse.json({ error: err.message || 'Failed to claim ticket' }, { status: 500 });
+        const message = err instanceof Error ? err.message : 'Failed to claim ticket';
+        return NextResponse.json({ error: message }, { status: 500 });
     }
 }

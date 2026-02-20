@@ -11,8 +11,9 @@ export async function GET(req: NextRequest) {
 
         const recentWins = await getRecentWins(limit);
         return NextResponse.json(recentWins);
-    } catch (err: any) {
+    } catch (err: unknown) {
         console.error('Recent wins error:', err);
-        return NextResponse.json({ error: err.message || 'Failed to get recent wins' }, { status: 500 });
+        const message = err instanceof Error ? err.message : 'Failed to get recent wins';
+        return NextResponse.json({ error: message }, { status: 500 });
     }
 }
