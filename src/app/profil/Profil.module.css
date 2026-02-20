@@ -6,6 +6,82 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    position: relative;
+    overflow: hidden;
+}
+
+/* --- Floating Background Particles --- */
+.ambientGlow {
+    position: absolute;
+    top: -10%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 150%;
+    height: 400px;
+    background: radial-gradient(circle, rgba(0, 242, 255, 0.05) 0%, transparent 60%);
+    z-index: 0;
+    animation: slowBreathe 8s ease-in-out infinite alternate;
+}
+
+.particlesContainer {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+}
+
+.particle {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background: #00f2ff;
+    border-radius: 50%;
+    box-shadow: 0 0 5px #00f2ff, 0 0 10px #00f2ff;
+    opacity: 0;
+    animation: floatUp 10s infinite linear;
+}
+
+@keyframes floatUp {
+    0% {
+        transform: translateY(100vh) scale(0);
+        opacity: 0;
+    }
+
+    20% {
+        opacity: 0.5;
+        transform: translateY(80vh) scale(1);
+    }
+
+    80% {
+        opacity: 0.5;
+        transform: translateY(20vh) scale(1.5);
+    }
+
+    100% {
+        transform: translateY(-10vh) scale(0);
+        opacity: 0;
+    }
+}
+
+@keyframes slowBreathe {
+    0% {
+        transform: translateX(-50%) scale(0.9);
+        opacity: 0.7;
+    }
+
+    100% {
+        transform: translateX(-50%) scale(1.1);
+        opacity: 1;
+    }
+}
+
+/* --- Content Layering --- */
+.header,
+.statsGrid,
+.section {
+    position: relative;
+    z-index: 10;
 }
 
 .header {
@@ -22,26 +98,41 @@
     margin-bottom: 1rem;
 }
 
+/* Pulse / Heartbeat Glow on Avatar */
 .avatarImg {
     width: 100%;
     height: 100%;
     border-radius: 50%;
     border: 3px solid var(--primary);
     object-fit: cover;
-    box-shadow: 0 0 20px rgba(0, 242, 255, 0.3);
+    box-shadow: 0 0 20px rgba(0, 242, 255, 0.5);
+    animation: avatarPulse 2.5s infinite alternate ease-in-out;
 }
 
-.levelBadge {
-    position: absolute;
-    bottom: 0;
-    right: -0.5rem;
+.avatarPlaceholder {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 3px solid var(--primary);
     background: var(--surface-dark);
-    border: 1px solid var(--primary);
-    color: var(--primary);
-    font-size: 0.625rem;
-    font-weight: 700;
-    padding: 0.125rem 0.5rem;
-    border-radius: 999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+    box-shadow: 0 0 20px rgba(0, 242, 255, 0.3);
+    animation: avatarPulse 2.5s infinite alternate ease-in-out;
+}
+
+@keyframes avatarPulse {
+    0% {
+        box-shadow: 0 0 10px rgba(0, 242, 255, 0.3);
+        transform: scale(0.98);
+    }
+
+    100% {
+        box-shadow: 0 0 25px rgba(0, 242, 255, 0.8), 0 0 40px rgba(0, 242, 255, 0.4);
+        transform: scale(1.02);
+    }
 }
 
 .username {
@@ -70,6 +161,17 @@
     margin-bottom: 3rem;
 }
 
+/* Makes the StatBoxes inside grid interactive */
+.statsGrid>* {
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease;
+}
+
+.statsGrid>*:hover,
+.statsGrid>*:active {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 8px 20px rgba(0, 242, 255, 0.15);
+}
+
 .section {
     width: 100%;
 }
@@ -95,6 +197,17 @@
     gap: 1rem;
     padding: 0.75rem 1rem;
     border-radius: 0.75rem;
+    /* Slide in animation base */
+    opacity: 0;
+    transform: translateY(20px);
+    animation: slideUpFadeIn 0.5s ease forwards;
+}
+
+@keyframes slideUpFadeIn {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .historyIcon {
@@ -126,18 +239,6 @@
 .historyAmount {
     font-weight: 700;
     font-size: 0.875rem;
-}
-
-.avatarPlaceholder {
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    border: 3px solid var(--primary);
-    background: var(--surface-dark);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--text-secondary);
 }
 
 .emptyState {

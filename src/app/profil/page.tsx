@@ -25,6 +25,22 @@ export default function ProfilPage() {
 
     return (
         <main className={styles.container}>
+            {/* Ambient Background Particles */}
+            <div className={styles.ambientGlow}></div>
+            <div className={styles.particlesContainer}>
+                {[...Array(15)].map((_, i) => (
+                    <div
+                        key={i}
+                        className={styles.particle}
+                        style={{
+                            left: `${Math.random() * 100}%`,
+                            animationDelay: `${Math.random() * 5}s`,
+                            animationDuration: `${5 + Math.random() * 5}s`,
+                        }}
+                    />
+                ))}
+            </div>
+
             <header className={styles.header}>
                 <div className={styles.avatarContainer}>
                     {user?.pfpUrl ? (
@@ -34,7 +50,6 @@ export default function ProfilPage() {
                             <span className="material-symbols-outlined" style={{ fontSize: 48 }}>person</span>
                         </div>
                     )}
-                    <div className={styles.levelBadge}>Lvl 1</div>
                 </div>
                 <h1 className={styles.username}>@{user?.username || 'unknown'}</h1>
                 <div className={styles.metaInfo}>
@@ -59,8 +74,12 @@ export default function ProfilPage() {
                     </div>
                 ) : (
                     <div className={styles.historyList}>
-                        {history.map((item) => (
-                            <div key={item.id} className={`${styles.historyItem} glass-morphism`}>
+                        {history.map((item, index) => (
+                            <div
+                                key={item.id}
+                                className={`${styles.historyItem} glass-morphism`}
+                                style={{ animationDelay: `${index * 0.1}s` }}
+                            >
                                 <div className={styles.historyIcon}>
                                     <span className={`material-symbols-outlined ${item.type === 'win' ? styles.iconWin : styles.iconLoss}`}>
                                         {item.type === 'win' ? 'trophy' : 'close'}
