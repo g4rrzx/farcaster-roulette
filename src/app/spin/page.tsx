@@ -88,6 +88,7 @@ export default function SpinPage() {
             const txHash = await provider.request({
                 method: "eth_sendTransaction",
                 params: [{
+                    from: userWallet as `0x${string}`,
                     to: contractAddress as `0x${string}`,
                     data: callData,
                     value: `0x${BigInt(spinFee).toString(16)}`,
