@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import styles from "./ParticlesBackground.module.css";
 
 const ICONS = ["💎", "🎰", "🎲", "7️⃣", "🍒", "🔥", "🚀", "💰"];
@@ -15,10 +15,14 @@ interface Particle {
 }
 
 export default function ParticlesBackground() {
-    const isMounted = true;
+    const [isMounted, setIsMounted] = useState(false);
+
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
+
     const [particles] = useState<Particle[]>(() => {
         // Initial generation only happens once per component instance
-        if (typeof window === 'undefined') return [];
         return Array.from({ length: 15 }).map((_, i) => ({
             id: i,
             icon: ICONS[Math.floor(Math.random() * ICONS.length)],

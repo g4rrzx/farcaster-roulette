@@ -7,7 +7,6 @@ import {
     useState,
     type ReactNode,
 } from "react";
-import sdk from "@farcaster/frame-sdk";
 
 interface FarcasterUser {
     fid: number;
@@ -52,6 +51,7 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
     useEffect(() => {
         async function initFarcaster() {
             try {
+                const { default: sdk } = await import("@farcaster/frame-sdk");
                 const context = await sdk.context;
 
                 if (context?.user) {

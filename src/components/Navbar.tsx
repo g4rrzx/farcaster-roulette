@@ -7,7 +7,7 @@ import styles from './Navbar.module.css';
 export default function Navbar() {
     const pathname = usePathname();
 
-    const isActive = (path: string) => pathname.startsWith(path);
+    const isActive = (path: string) => pathname?.startsWith(path) ?? false;
 
     return (
         <nav className={styles.navbar}>
