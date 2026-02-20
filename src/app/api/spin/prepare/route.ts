@@ -4,6 +4,8 @@ import { users } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 import { prepareSpin } from '@/services/spin.service';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(req: NextRequest) {
     try {
         // Authenticate the FID bypassing express standard middleware

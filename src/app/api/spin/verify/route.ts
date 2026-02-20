@@ -4,6 +4,8 @@ import { users } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 import { verifySpinTransaction } from '@/services/spin.service';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(req: NextRequest) {
     try {
         const authHeader = req.headers.get('authorization');

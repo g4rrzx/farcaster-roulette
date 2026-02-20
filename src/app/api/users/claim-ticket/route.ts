@@ -3,6 +3,8 @@ import { db } from '@/db/index';
 import { users } from '@/db/schema';
 import { eq, sql } from 'drizzle-orm';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(req: NextRequest) {
     try {
         const authHeader = req.headers.get('authorization');
