@@ -1,0 +1,25 @@
+{
+    "accountAssociation": {
+        "header": "eyJmaWQiOjkxMTAwMiwidHlwZSI6ImN1c3RvZHkiLCJrZXkiOiIweDJDNjQ0ZTdkODY2ZGU0NThDMTMxNTBjZTBBZTA5ZjllRUFEQjA2OTMifQ==",
+        "payload": "eyJkb21haW4iOiJcm91bGV0ZWUudmVyY2VsLmFwcCJ9",
+        "signature": "MHhkMDY1MWE2OTg0ZjI3MjZkNjExN2Y0ZTdkZGNlMzYwZTlmOGRmOTgxODhlZTVhMTVkZjczMGRiNmJhYzY5YjcxNzNjNGY4MzRmM2Y0OTNlYWZmNWQ2N2IzMTI0ZGEzMWZlNmQwOWU0MTJkYTk2M2RkOGUzZTcyZGMyNWI0OWVhYjFi"
+    },
+    "frame": {
+        "version": "1",
+        "name": "Arbitrum Roulette",
+        "iconUrl": "https://rouletee.vercel.app/icon.png",
+        "homeUrl": "https://rouletee.vercel.app",
+        "splashImageUrl": "https://rouletee.vercel.app/splash.png",
+        "splashBackgroundColor": "#0f172a",
+        "button": {
+            "title": "Open mini app",
+            "action": {
+                "type": "launch_frame",
+                "name": "Arbitrum Roulette",
+                "url": "https://rouletee.vercel.app",
+                "splashImageUrl": "https://rouletee.vercel.app/splash.png",
+                "splashBackgroundColor": "#0f172a"
+            }
+        }
+    }
+}
