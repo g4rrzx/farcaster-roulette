@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useSyncExternalStore } from 'react';
+import Image from 'next/image';
 import styles from './Profil.module.css';
 import StatBox from '@/components/StatBox';
 import { useAuth } from '@/components/AuthProvider';
@@ -14,28 +15,41 @@ interface HistoryItem {
 
 export default function ProfilPage() {
     const { user } = useAuth();
-    const [stats, setStats] = useState({ wins: 0, spins: 0, ticketsClaimed: 0 });
-    const [history, setHistory] = useState<HistoryItem[]>([]);
+    const [stats] = useState({ wins: 0, spins: 0, ticketsClaimed: 0 });
+    const [history] = useState<HistoryItem[]>([]);
 
-    useEffect(() => {
-        // TODO: Fetch from backend API
-        setStats({ wins: 0, spins: 0, ticketsClaimed: 0 });
-        setHistory([]);
-    }, []);
+    const [particleStyles] = useState<{ left: string, delay: string, duration: string }[]>(() => {
+        if (typeof window === 'undefined') return [];
+        return Array.from({ length: 15 }).map(() => ({
+            left: `${Math.random() * 100}%`,
+            delay: `${Math.random() * 5}s`,
+            duration: `${5 + Math.random() * 5}s`,
+        }));
+    });
+    const [isMounted, setIsMounted] = useState(false);
+
+
+    const isClient = useSyncExternalStore(
+        () => () => { },
+        () => true,
+        () => false
+    );
+
+    if (!isClient) return null;
 
     return (
         <main className={styles.container}>
             {/* Ambient Background Particles */}
             <div className={styles.ambientGlow}></div>
             <div className={styles.particlesContainer}>
-                {[...Array(15)].map((_, i) => (
+                {particleStyles.map((style, i) => (
                     <div
                         key={i}
                         className={styles.particle}
                         style={{
-                            left: `${Math.random() * 100}%`,
-                            animationDelay: `${Math.random() * 5}s`,
-                            animationDuration: `${5 + Math.random() * 5}s`,
+                            left: style.left,
+                            animationDelay: style.delay,
+                            animationDuration: style.duration,
                         }}
                     />
                 ))}
@@ -44,7 +58,13 @@ export default function ProfilPage() {
             <header className={styles.header}>
                 <div className={styles.avatarContainer}>
                     {user?.pfpUrl ? (
-                        <img src={user.pfpUrl} alt={user.displayName || user.username || 'User'} className={styles.avatarImg} />
+                        <Image
+                            src={user.pfpUrl}
+                            alt={user.displayName || user.username || 'User'}
+                            width={96}
+                            height={96}
+                            className={styles.avatarImg}
+                        />
                     ) : (
                         <div className={styles.avatarPlaceholder}>
                             <span className="material-symbols-outlined" style={{ fontSize: 48 }}>person</span>

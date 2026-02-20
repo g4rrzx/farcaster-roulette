@@ -1,5 +1,6 @@
 "use client";
 
+import React from 'react';
 import styles from "./WinnerModal.module.css";
 
 interface WinnerModalProps {
@@ -15,6 +16,27 @@ export default function WinnerModal({
     txHash,
     onDismiss,
 }: WinnerModalProps) {
+
+    const [confettiStyles, setConfettiStyles] = React.useState<React.CSSProperties[]>([]);
+
+    React.useEffect(() => {
+        if (isVisible && confettiStyles.length === 0) {
+            const styles = Array.from({ length: 30 }).map(() => ({
+                left: `${Math.random() * 100}%`,
+                animationDelay: `${Math.random() * 2}s`,
+                animationDuration: `${2 + Math.random() * 2}s`,
+                backgroundColor: ['#00f2ff', '#a855f7', '#22c55e', '#f59e0b', '#ef4444', '#3b82f6'][
+                    Math.floor(Math.random() * 6)
+                ],
+            }));
+            setConfettiStyles(styles);
+        }
+
+        if (!isVisible) {
+            setConfettiStyles([]); // reset when hidden
+        }
+    }, [isVisible, confettiStyles.length]);
+
     if (!isVisible) return null;
 
     const shortHash = txHash
@@ -29,18 +51,11 @@ export default function WinnerModal({
         <div className={styles.overlay}>
             {/* Confetti particles */}
             <div className={styles.confettiContainer}>
-                {Array.from({ length: 30 }).map((_, i) => (
+                {confettiStyles.map((style, i) => (
                     <div
                         key={i}
                         className={styles.confetti}
-                        style={{
-                            left: `${Math.random() * 100}%`,
-                            animationDelay: `${Math.random() * 2}s`,
-                            animationDuration: `${2 + Math.random() * 2}s`,
-                            backgroundColor: ['#00f2ff', '#a855f7', '#22c55e', '#f59e0b', '#ef4444', '#3b82f6'][
-                                Math.floor(Math.random() * 6)
-                            ],
-                        }}
+                        style={style}
                     />
                 ))}
             </div>

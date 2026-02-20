@@ -15,11 +15,11 @@ interface Particle {
 }
 
 export default function ParticlesBackground() {
-    const [particles, setParticles] = useState<Particle[]>([]);
-
-    useEffect(() => {
-        // Generate static particles on mount to avoid hydration mismatch
-        const newParticles = Array.from({ length: 15 }).map((_, i) => ({
+    const isMounted = true;
+    const [particles] = useState<Particle[]>(() => {
+        // Initial generation only happens once per component instance
+        if (typeof window === 'undefined') return [];
+        return Array.from({ length: 15 }).map((_, i) => ({
             id: i,
             icon: ICONS[Math.floor(Math.random() * ICONS.length)],
             left: `${Math.random() * 100}%`,
@@ -27,8 +27,10 @@ export default function ParticlesBackground() {
             duration: `${15 + Math.random() * 15}s`,
             size: `${1 + Math.random()}rem`,
         }));
-        setParticles(newParticles);
-    }, []);
+    });
+
+
+    if (!isMounted) return null;
 
     return (
         <div className={styles.container}>

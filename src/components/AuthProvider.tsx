@@ -50,12 +50,33 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
                 const context = await sdk.context;
 
                 if (context?.user) {
-                    setUser({
+                    const userData = {
                         fid: context.user.fid,
                         username: context.user.username,
                         displayName: context.user.displayName,
                         pfpUrl: context.user.pfpUrl,
-                    });
+                    };
+                    setUser(userData);
+
+                    // Sync with backend database
+                    try {
+                        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+                        const res = await fetch(`${apiUrl}/api/users/farcaster-login`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(userData)
+                        });
+
+                        if (res.ok) {
+                            const data = await res.json();
+                            if (data.success && data.user) {
+                                // Sync their ticket balance from the database!
+                                setTickets(data.user.tickets);
+                            }
+                        }
+                    } catch (e) {
+                        console.error("Failed to sync user with backend:", e);
+                    }
                 }
 
                 // Signal to Farcaster that the frame is ready

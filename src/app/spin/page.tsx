@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback } from 'react';
+import Image from 'next/image';
 import styles from './Spin.module.css';
 import RouletteRing from '@/components/RouletteRing';
 import WelcomeModal from '@/components/WelcomeModal';
@@ -28,7 +29,7 @@ export default function SpinPage() {
         await new Promise((r) => setTimeout(r, 1200));
         setTickets((prev) => prev + 1);
         setIsClaiming(false);
-    }, [isClaiming]);
+    }, [isClaiming, setTickets]);
 
     const handleSpin = async () => {
         if (tickets <= 0 || isSpinning) return;
@@ -109,7 +110,12 @@ export default function SpinPage() {
                     </div>
                     <div className={styles.avatar}>
                         {user?.pfpUrl ? (
-                            <img src={user.pfpUrl} alt={user.displayName || user.username || 'User'} />
+                            <Image
+                                src={user.pfpUrl}
+                                alt={user.displayName || user.username || 'User'}
+                                width={48}
+                                height={48}
+                            />
                         ) : (
                             <span className="material-symbols-outlined" style={{ fontSize: 24, color: 'var(--text-secondary)' }}>person</span>
                         )}

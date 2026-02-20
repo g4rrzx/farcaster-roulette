@@ -1,17 +1,23 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useSyncExternalStore } from "react";
 import styles from "./WelcomeModal.module.css";
 
 export default function WelcomeModal() {
-    const [isVisible, setIsVisible] = useState(false);
+    const isClient = useSyncExternalStore(
+        () => () => { },
+        () => true,
+        () => false
+    );
 
-    useEffect(() => {
-        const welcomed = localStorage.getItem("roulette_welcomed");
-        if (!welcomed) {
-            setIsVisible(true);
-        }
-    }, []);
+    const [isVisible, setIsVisible] = useState(true);
+
+    // Only render if we're on the client, user hasn't dismissed in session, and localStorage says they haven't been welcomed
+    if (!isClient) return null;
+    if (!isVisible) return null;
+
+    // Check localStorage AFTER client check to avoid hydration mismatch
+    if (localStorage.getItem("roulette_welcomed")) return null;
 
     const handleDismiss = () => {
         localStorage.setItem("roulette_welcomed", "true");

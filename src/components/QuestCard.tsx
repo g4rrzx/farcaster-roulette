@@ -36,7 +36,7 @@ export default function QuestCard({
         return actionLabel;
     };
 
-    const ButtonElement = ({ children }: { children: React.ReactNode }) => {
+    const renderButton = (content: React.ReactNode) => {
         let className = `${styles.actionButton} `;
         if (isClaimed) className += styles.claimed;
         if (isLoading) className += styles.loading;
@@ -52,7 +52,7 @@ export default function QuestCard({
                     className={className.trim()}
                     onClick={onActionTaken}
                 >
-                    {children}
+                    {content}
                 </a>
             );
         }
@@ -64,7 +64,7 @@ export default function QuestCard({
                 onClick={needsVerification ? onVerify : onActionTaken}
                 disabled={isClaimed || isLoading}
             >
-                {children}
+                {content}
             </button>
         );
     };
@@ -82,9 +82,7 @@ export default function QuestCard({
                     {reward}
                 </div>
             </div>
-            <ButtonElement>
-                {getButtonContent()}
-            </ButtonElement>
+            {renderButton(getButtonContent())}
         </div>
     );
 }
