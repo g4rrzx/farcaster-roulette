@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from 'react';
 import styles from './Quest.module.css';
 import QuestCard from '@/components/QuestCard';
