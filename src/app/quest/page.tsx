@@ -1,9 +1,33 @@
-"use client";
-
+import { useState } from 'react';
 import styles from './Quest.module.css';
 import QuestCard from '@/components/QuestCard';
 
 export default function QuestPage() {
+    const [quests, setQuests] = useState({
+        daily: { isClaimed: false, isLoading: false },
+        follow: { isClaimed: false, isLoading: false },
+        recast: { isClaimed: false, isLoading: false },
+    });
+
+    const handleVerifyFollow = async () => {
+        setQuests(prev => ({ ...prev, follow: { ...prev.follow, isLoading: true } }));
+
+        // Mock API Call to verify follow status via backend -> Neynar
+        // e.g. await fetch('/api/quests/verify-follow?target=fcmini')
+        await new Promise(r => setTimeout(r, 1500));
+
+        // Assuming success
+        setQuests(prev => ({ ...prev, follow: { isClaimed: true, isLoading: false } }));
+        alert("Follow verified! +1 Ticket");
+    };
+
+    const handleVerifyRecast = async () => {
+        setQuests(prev => ({ ...prev, recast: { ...prev.recast, isLoading: true } }));
+        await new Promise(r => setTimeout(r, 1500));
+        setQuests(prev => ({ ...prev, recast: { isClaimed: true, isLoading: false } }));
+        alert("Recast verified! +1 Ticket");
+    };
+
     return (
         <main className={styles.container}>
             <header className={styles.header}>
@@ -19,37 +43,32 @@ export default function QuestPage() {
                         description="Log in to claim your free daily ticket."
                         reward="+1 Ticket 🎟️"
                         actionLabel="Claim"
-                        onClaim={() => console.log('Claimed')}
+                        isClaimed={quests.daily.isClaimed}
+                        isLoading={quests.daily.isLoading}
+                        onClaim={() => {
+                            setQuests(prev => ({ ...prev, daily: { isClaimed: true, isLoading: false } }));
+                            alert("Daily claimed!");
+                        }}
                     />
                     <QuestCard
                         title="Like & Recast"
                         description="Engage with our latest announcement."
                         reward="+1 Ticket 🎟️"
-                        actionLabel="Go"
+                        actionLabel="Verify"
+                        href="https://warpcast.com/fcmini" // Change this to specific cast URL later
+                        isClaimed={quests.recast.isClaimed}
+                        isLoading={quests.recast.isLoading}
+                        onClaim={handleVerifyRecast}
                     />
                     <QuestCard
-                        title="Follow @roulette"
-                        description="Follow our official account"
+                        title="Follow @fcmini"
+                        description="Follow our official account on Farcaster"
                         reward="+1 Ticket 🎟️"
-                        isClaimed={true}
-                    />
-                </div>
-            </div>
-
-            <div className={styles.section}>
-                <h2 className={styles.sectionTitle}>Weekly Challenges</h2>
-                <div className={styles.grid}>
-                    <QuestCard
-                        title="Winning Streak"
-                        description="Win 3 in a row."
-                        reward="+3 Tickets 🎟️"
-                        actionLabel="View"
-                    />
-                    <QuestCard
-                        title="Social Butterfly"
-                        description="Invite 3 friends to play."
-                        reward="+5 Tickets 🎟️"
-                        actionLabel="Invite"
+                        actionLabel="Verify"
+                        href="https://farcaster.xyz/fcmini"
+                        isClaimed={quests.follow.isClaimed}
+                        isLoading={quests.follow.isLoading}
+                        onClaim={handleVerifyFollow}
                     />
                 </div>
             </div>

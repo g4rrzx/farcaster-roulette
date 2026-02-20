@@ -7,8 +7,10 @@ interface QuestCardProps {
     description: string;
     reward: string;
     isClaimed?: boolean;
+    isLoading?: boolean;
     onClaim?: () => void;
     actionLabel?: string;
+    href?: string;
 }
 
 export default function QuestCard({
@@ -16,9 +18,34 @@ export default function QuestCard({
     description,
     reward,
     isClaimed = false,
+    isLoading = false,
     onClaim,
-    actionLabel = "Start"
+    actionLabel = "Start",
+    href
 }: QuestCardProps) {
+
+    const ButtonElement = ({ children }: { children: React.ReactNode }) => {
+        const className = `${styles.actionButton} ${isClaimed ? styles.claimed : ''} ${isLoading ? styles.loading : ''}`;
+
+        if (href && !isClaimed) {
+            return (
+                <a href={href} target="_blank" rel="noopener noreferrer" className={className}>
+                    {children}
+                </a>
+            );
+        }
+
+        return (
+            <button
+                className={className}
+                onClick={onClaim}
+                disabled={isClaimed || isLoading}
+            >
+                {children}
+            </button>
+        );
+    };
+
     return (
         <div className={`${styles.card} glass-morphism`}>
             <div className={styles.iconContainer}>
@@ -32,13 +59,9 @@ export default function QuestCard({
                     {reward}
                 </div>
             </div>
-            <button
-                className={`${styles.actionButton} ${isClaimed ? styles.claimed : ''}`}
-                onClick={onClaim}
-                disabled={isClaimed}
-            >
-                {isClaimed ? 'Done' : actionLabel}
-            </button>
+            <ButtonElement>
+                {isLoading ? 'Verifying...' : isClaimed ? 'Done' : actionLabel}
+            </ButtonElement>
         </div>
     );
 }
