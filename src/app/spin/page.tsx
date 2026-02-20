@@ -46,7 +46,7 @@ export default function SpinPage() {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${user.fid}`
                 },
-                body: JSON.stringify({ userWallet, nonce: tickets })
+                body: JSON.stringify({ userWallet })
             });
             const prepareData = await prepareRes.json();
 

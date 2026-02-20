@@ -24,7 +24,7 @@ export function getSpinConfig() {
  * Prepares an on-chain spin by verifying tickets and issuing an ECDSA signature
  * so the user can call ArbitrumRoulette.spin(currentNonce, signature)
  */
-export async function prepareSpin(userId: string, userWallet: string, nonce: number) {
+export async function prepareSpin(userId: string, userWallet: string) {
     if (!process.env.PRIVATE_KEY) throw new Error("Backend misconfigured: Missing PRIVATE_KEY");
     if (!process.env.ROULETTE_CONTRACT_ADDRESS) throw new Error("Backend misconfigured: Missing CONTRACT_ADDRESS");
 
@@ -40,17 +40,28 @@ export async function prepareSpin(userId: string, userWallet: string, nonce: num
         throw new Error('Valid wallet address is required to sign the transaction');
     }
 
-    // 3. Generate ECDSA Signature matching ArbitrumRoulette V2
+    // 3. Fetch current nonce from smart contract
+    const provider = new ethers.JsonRpcProvider('https://arb1.arbitrum.io/rpc');
+    const contractAddress = process.env.ROULETTE_CONTRACT_ADDRESS;
+    const rouletteContract = new ethers.Contract(
+        contractAddress,
+        ['function userSpinNonces(address) view returns (uint256)'],
+        provider
+    );
+
+    const currentNonceBn = await rouletteContract.userSpinNonces(userWallet);
+    const currentNonce = Number(currentNonceBn);
+
+    // 4. Generate ECDSA Signature matching ArbitrumRoulette V2
     // bytes32 messageHash = keccak256(abi.encodePacked(msg.sender, currentNonce, spinFee, block.chainid, address(this)));
 
     const spinFee = ethers.parseUnits("1000", "gwei"); // 0.000001 ETH
     const chainId = 42161; // Arbitrum One
-    const contractAddress = process.env.ROULETTE_CONTRACT_ADDRESS;
 
     // Pack the data exactly as Solidity abi.encodePacked does
     const messageHash = ethers.solidityPackedKeccak256(
         ['address', 'uint256', 'uint256', 'uint256', 'address'],
-        [userWallet, nonce, spinFee, chainId, contractAddress]
+        [userWallet, currentNonce, spinFee, chainId, contractAddress]
     );
 
     // Sign the message hash
@@ -59,7 +70,7 @@ export async function prepareSpin(userId: string, userWallet: string, nonce: num
 
     return {
         signature,
-        nonce,
+        nonce: currentNonce,
         spinFee: spinFee.toString(),
         contractAddress
     };

@@ -26,17 +26,13 @@ export async function POST(req: NextRequest) {
 
         // Handle body inputs
         const body = await req.json();
-        const { userWallet, nonce } = body;
+        const { userWallet } = body;
 
         if (!userWallet || typeof userWallet !== 'string') {
             return NextResponse.json({ error: 'userWallet is required and must be a string' }, { status: 400 });
         }
 
-        if (nonce === undefined || typeof nonce !== 'number') {
-            return NextResponse.json({ error: 'nonce is required and must be a number' }, { status: 400 });
-        }
-
-        const payload = await prepareSpin(user.id, userWallet, nonce);
+        const payload = await prepareSpin(user.id, userWallet);
         return NextResponse.json({ success: true, ...payload });
 
     } catch (err: unknown) {
