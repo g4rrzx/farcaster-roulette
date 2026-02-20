@@ -18,20 +18,24 @@ interface FarcasterUser {
 
 interface AuthContextType {
     user: FarcasterUser | null;
+    walletAddress: string | null;
     isLoading: boolean;
     isConnected: boolean;
     error: string | null;
     tickets: number;
     setTickets: React.Dispatch<React.SetStateAction<number>>;
+    setWalletAddress: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
 const AuthContext = createContext<AuthContextType>({
     user: null,
+    walletAddress: null,
     isLoading: true,
     isConnected: false,
     error: null,
     tickets: 0,
     setTickets: () => { },
+    setWalletAddress: () => { },
 });
 
 export function useAuth() {
@@ -40,6 +44,7 @@ export function useAuth() {
 
 export default function AuthProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<FarcasterUser | null>(null);
+    const [walletAddress, setWalletAddress] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [tickets, setTickets] = useState(0);
@@ -95,7 +100,7 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
     const isConnected = user !== null;
 
     return (
-        <AuthContext.Provider value={{ user, isLoading, isConnected, error, tickets, setTickets }}>
+        <AuthContext.Provider value={{ user, walletAddress, setWalletAddress, isLoading, isConnected, error, tickets, setTickets }}>
             {children}
         </AuthContext.Provider>
     );

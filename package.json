@@ -12,7 +12,8 @@
     "@farcaster/frame-sdk": "^0.1.14",
     "next": "16.1.6",
     "react": "19.2.3",
-    "react-dom": "19.2.3"
+    "react-dom": "19.2.3",
+    "viem": "^2.46.2"
   },
   "devDependencies": {
     "@types/node": "^20",
