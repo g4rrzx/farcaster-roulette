@@ -6,9 +6,9 @@ interface QuestCardProps {
     title: string;
     description: string;
     reward: string;
-    isClaimed?: boolean;
-    isLoading?: boolean;
-    onClaim?: () => void;
+    status?: 'idle' | 'action_taken' | 'verifying' | 'claimed';
+    onActionTaken?: () => void;
+    onVerify?: () => void;
     actionLabel?: string;
     href?: string;
 }
@@ -17,28 +17,51 @@ export default function QuestCard({
     title,
     description,
     reward,
-    isClaimed = false,
-    isLoading = false,
-    onClaim,
+    status = 'idle',
+    onActionTaken,
+    onVerify,
     actionLabel = "Start",
     href
 }: QuestCardProps) {
 
-    const ButtonElement = ({ children }: { children: React.ReactNode }) => {
-        const className = `${styles.actionButton} ${isClaimed ? styles.claimed : ''} ${isLoading ? styles.loading : ''}`;
+    // Derived flags
+    const isClaimed = status === 'claimed';
+    const isLoading = status === 'verifying';
+    const needsVerification = status === 'action_taken';
 
-        if (href && !isClaimed) {
+    const getButtonContent = () => {
+        if (isLoading) return 'Verifying...';
+        if (isClaimed) return 'Done';
+        if (needsVerification) return 'Verify';
+        return actionLabel;
+    };
+
+    const ButtonElement = ({ children }: { children: React.ReactNode }) => {
+        let className = `${styles.actionButton} `;
+        if (isClaimed) className += styles.claimed;
+        if (isLoading) className += styles.loading;
+        if (needsVerification) className += ` ${styles.readyToVerify}`;
+
+        // Initial state with an external link
+        if (href && status === 'idle') {
             return (
-                <a href={href} target="_blank" rel="noopener noreferrer" className={className}>
+                <a
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={className.trim()}
+                    onClick={onActionTaken}
+                >
                     {children}
                 </a>
             );
         }
 
+        // Verification state or daily claim without link
         return (
             <button
-                className={className}
-                onClick={onClaim}
+                className={className.trim()}
+                onClick={needsVerification ? onVerify : onActionTaken}
                 disabled={isClaimed || isLoading}
             >
                 {children}
@@ -60,7 +83,7 @@ export default function QuestCard({
                 </div>
             </div>
             <ButtonElement>
-                {isLoading ? 'Verifying...' : isClaimed ? 'Done' : actionLabel}
+                {getButtonContent()}
             </ButtonElement>
         </div>
     );

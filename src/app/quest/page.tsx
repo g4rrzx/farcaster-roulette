@@ -3,31 +3,66 @@
 import { useState } from 'react';
 import styles from './Quest.module.css';
 import QuestCard from '@/components/QuestCard';
+import { useAuth } from '@/components/AuthProvider';
+
+type QuestStatus = 'idle' | 'action_taken' | 'verifying' | 'claimed';
 
 export default function QuestPage() {
-    const [quests, setQuests] = useState({
-        daily: { isClaimed: false, isLoading: false },
-        follow: { isClaimed: false, isLoading: false },
-        recast: { isClaimed: false, isLoading: false },
+    // Consume global tickets state
+    const { setTickets } = useAuth();
+
+    const [quests, setQuests] = useState<{
+        daily: QuestStatus;
+        follow: QuestStatus;
+        recast: QuestStatus;
+    }>({
+        daily: 'idle',
+        follow: 'idle',
+        recast: 'idle',
     });
 
-    const handleVerifyFollow = async () => {
-        setQuests(prev => ({ ...prev, follow: { ...prev.follow, isLoading: true } }));
-
-        // Mock API Call to verify follow status via backend -> Neynar
-        // e.g. await fetch('/api/quests/verify-follow?target=fcmini')
-        await new Promise(r => setTimeout(r, 1500));
-
-        // Assuming success
-        setQuests(prev => ({ ...prev, follow: { isClaimed: true, isLoading: false } }));
-        alert("Follow verified! +1 Ticket");
+    const updateQuest = (key: keyof typeof quests, status: QuestStatus) => {
+        setQuests(prev => ({ ...prev, [key]: status }));
     };
 
-    const handleVerifyRecast = async () => {
-        setQuests(prev => ({ ...prev, recast: { ...prev.recast, isLoading: true } }));
+    const awardTicket = () => {
+        // Increase global ticket balance
+        setTickets(prev => prev + 1);
+    };
+
+    // --- DAILY CHECK-IN ---
+    // Daily doesn't have an external link, so it just goes straight to verifying -> claimed
+    const handleDailyClaim = async () => {
+        updateQuest('daily', 'verifying');
+        // Simulated API delay
+        await new Promise(r => setTimeout(r, 1000));
+        updateQuest('daily', 'claimed');
+        awardTicket();
+    };
+
+    // --- FOLLOW (External Link) ---
+    // Step 1: User clicks link
+    const handleFollowAction = () => {
+        updateQuest('follow', 'action_taken');
+    };
+    // Step 2: User clicks Verify
+    const handleVerifyFollow = async () => {
+        updateQuest('follow', 'verifying');
+        // Mock backend verify via Neynar
         await new Promise(r => setTimeout(r, 1500));
-        setQuests(prev => ({ ...prev, recast: { isClaimed: true, isLoading: false } }));
-        alert("Recast verified! +1 Ticket");
+        updateQuest('follow', 'claimed');
+        awardTicket();
+    };
+
+    // --- RECAST (External Link) ---
+    const handleRecastAction = () => {
+        updateQuest('recast', 'action_taken');
+    };
+    const handleVerifyRecast = async () => {
+        updateQuest('recast', 'verifying');
+        await new Promise(r => setTimeout(r, 1500));
+        updateQuest('recast', 'claimed');
+        awardTicket();
     };
 
     return (
@@ -45,32 +80,29 @@ export default function QuestPage() {
                         description="Log in to claim your free daily ticket."
                         reward="+1 Ticket 🎟️"
                         actionLabel="Claim"
-                        isClaimed={quests.daily.isClaimed}
-                        isLoading={quests.daily.isLoading}
-                        onClaim={() => {
-                            setQuests(prev => ({ ...prev, daily: { isClaimed: true, isLoading: false } }));
-                            alert("Daily claimed!");
-                        }}
+                        status={quests.daily}
+                        onActionTaken={handleDailyClaim}
+                    // onVerify not needed since it's a 1-step claim process
                     />
                     <QuestCard
                         title="Like & Recast"
                         description="Engage with our latest announcement."
                         reward="+1 Ticket 🎟️"
-                        actionLabel="Verify"
-                        href="https://warpcast.com/fcmini" // Change this to specific cast URL later
-                        isClaimed={quests.recast.isClaimed}
-                        isLoading={quests.recast.isLoading}
-                        onClaim={handleVerifyRecast}
+                        actionLabel="Go to Cast"
+                        href="https://warpcast.com/fcmini"
+                        status={quests.recast}
+                        onActionTaken={handleRecastAction}
+                        onVerify={handleVerifyRecast}
                     />
                     <QuestCard
                         title="Follow @fcmini"
                         description="Follow our official account on Farcaster"
                         reward="+1 Ticket 🎟️"
-                        actionLabel="Verify"
+                        actionLabel="Follow"
                         href="https://farcaster.xyz/fcmini"
-                        isClaimed={quests.follow.isClaimed}
-                        isLoading={quests.follow.isLoading}
-                        onClaim={handleVerifyFollow}
+                        status={quests.follow}
+                        onActionTaken={handleFollowAction}
+                        onVerify={handleVerifyFollow}
                     />
                 </div>
             </div>

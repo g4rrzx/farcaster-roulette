@@ -9,10 +9,9 @@ import { useAuth } from '@/components/AuthProvider';
 import JackpotTicker from '@/components/JackpotTicker';
 
 export default function SpinPage() {
-    const { user } = useAuth();
+    const { user, tickets, setTickets } = useAuth();
     const [isSpinning, setIsSpinning] = useState(false);
     const [result, setResult] = useState<null | 'win' | 'loss' | 'jackpot'>(null);
-    const [tickets, setTickets] = useState(0);
     const [isClaiming, setIsClaiming] = useState(false);
     const [streak, setStreak] = useState(0);
 

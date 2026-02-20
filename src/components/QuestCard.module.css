@@ -75,3 +75,25 @@
     color: var(--text-secondary);
     cursor: default;
 }
+
+.readyToVerify {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+    border: 1px solid #34d399;
+    color: #ffffff;
+    animation: pulseVerify 2s infinite;
+}
+
+@keyframes pulseVerify {
+    0% {
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
+    }
+
+    70% {
+        box-shadow: 0 0 0 10px rgba(16, 185, 129, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+    }
+}
