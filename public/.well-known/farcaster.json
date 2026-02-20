@@ -32,7 +32,7 @@
         "ogTitle": "Arbitrum Roulette",
         "ogDescription": "Decentralized roulette inside Warpcast. Spin the neon wheel for massive ARB rewards.",
         "ogImageUrl": "https://rouletee.vercel.app/splash.png",
-        "castShareUrl": "https://warpcast.com/~/compose?text=I+just+played+Arbitrum+Roulette%21+Come+spin+the+neon+wheel+and+win+ARB+rewards+on-chain.&embeds[]=https://rouletee.vercel.app",
+        "castShareUrl": "https://rouletee.vercel.app/share",
         "button": {
             "title": "Play Roulette",
             "action": {
