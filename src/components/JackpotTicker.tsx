@@ -4,11 +4,11 @@ import { useEffect, useState } from "react";
 import styles from "./JackpotTicker.module.css";
 
 const MOCK_WINS = [
-    { user: "@dwr.eth", amount: "5,000", token: "DEGEN" },
-    { user: "@vbuterin", amount: "1,000", token: "HIGHER" },
-    { user: "@jessepollak", amount: "500", token: "TN100x" },
-    { user: "@pugson", amount: "10,000", token: "MOXIE" },
-    { user: "@betashop.eth", amount: "2,500", token: "HAM" },
+    { id: 1, user: "@dwr.eth", amount: "5,000", token: "DEGEN" },
+    { id: 2, user: "@vbuterin", amount: "1,000", token: "HIGHER" },
+    { id: 3, user: "@jessepollak", amount: "500", token: "TN100x" },
+    { id: 4, user: "@pugson", amount: "10,000", token: "MOXIE" },
+    { id: 5, user: "@betashop.eth", amount: "2,500", token: "HAM" },
 ];
 
 interface WinRecord {
