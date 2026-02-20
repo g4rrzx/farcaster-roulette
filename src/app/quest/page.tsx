@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import styles from './Quest.module.css';
 import QuestCard from '@/components/QuestCard';
 import { useAuth } from '@/components/AuthProvider';
@@ -20,14 +20,41 @@ export default function QuestPage() {
         recast: 'idle',
     });
 
+    const [nextClaimDate, setNextClaimDate] = useState<string | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+
+    // Fetch quest status from database
+    useEffect(() => {
+        const currentFid = user?.fid;
+        if (!currentFid) return;
+
+        async function fetchQuestStatus() {
+            try {
+                const res = await fetch(`/api/quests/status?fid=${currentFid}`);
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.success) {
+                        setQuests(data.quests);
+                        setNextClaimDate(data.nextClaimDate);
+                    }
+                }
+            } catch (err) {
+                console.error('Failed to fetch quest status:', err);
+            } finally {
+                setIsLoading(false);
+            }
+        }
+
+        fetchQuestStatus();
+    }, [user?.fid]);
 
     const updateQuest = (key: keyof typeof quests, status: QuestStatus) => {
         setQuests(prev => ({ ...prev, [key]: status }));
     };
 
     const verifyQuest = async (questType: 'daily' | 'follow' | 'recast', questKey: keyof typeof quests) => {
-        if (!user) return;
+        if (!user || isLoading) return;
 
         updateQuest(questKey, 'verifying');
         setError(null);
@@ -44,6 +71,8 @@ export default function QuestPage() {
             if (res.ok && data.success) {
                 updateQuest(questKey, 'claimed');
                 setTickets(data.tickets);
+                // Also update next claim date if this was the daily quest
+                if (data.nextClaimDate) setNextClaimDate(data.nextClaimDate);
             } else {
                 // Verification failed — show error and reset
                 setError(data.error || 'Verification failed');
@@ -92,6 +121,8 @@ export default function QuestPage() {
                         actionLabel="Claim"
                         status={quests.daily}
                         onActionTaken={handleDailyClaim}
+                        nextClaimDate={nextClaimDate}
+                        isPageLoading={isLoading}
                     />
                     <QuestCard
                         title="Like & Recast"
@@ -102,16 +133,25 @@ export default function QuestPage() {
                         status={quests.recast}
                         onActionTaken={handleRecastAction}
                         onVerify={handleVerifyRecast}
+                        nextClaimDate={nextClaimDate}
+                        isPageLoading={isLoading}
                     />
+                </div>
+            </div>
+
+            <div className={styles.section}>
+                <h2 className={styles.sectionTitle}>One-time Quests</h2>
+                <div className={styles.grid}>
                     <QuestCard
                         title="Follow @fcmini"
-                        description="Follow our official account on Farcaster"
+                        description="Follow our official account for updates."
                         reward="+1 Ticket 🎟️"
                         actionLabel="Follow"
-                        href="https://farcaster.xyz/fcmini"
+                        href="https://warpcast.com/fcmini"
                         status={quests.follow}
                         onActionTaken={handleFollowAction}
                         onVerify={handleVerifyFollow}
+                        isPageLoading={isLoading}
                     />
                 </div>
             </div>

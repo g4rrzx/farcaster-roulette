@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from 'react';
 import styles from './QuestCard.module.css';
 
 interface QuestCardProps {
@@ -11,6 +12,8 @@ interface QuestCardProps {
     onVerify?: () => void;
     actionLabel?: string;
     href?: string;
+    nextClaimDate?: string | null;
+    isPageLoading?: boolean;
 }
 
 export default function QuestCard({
@@ -21,17 +24,48 @@ export default function QuestCard({
     onActionTaken,
     onVerify,
     actionLabel = "Start",
-    href
+    href,
+    nextClaimDate,
+    isPageLoading = false
 }: QuestCardProps) {
+
+    const [timeLeft, setTimeLeft] = useState<string>('');
 
     // Derived flags
     const isClaimed = status === 'claimed';
-    const isLoading = status === 'verifying';
+    const isLoading = status === 'verifying' || isPageLoading;
     const needsVerification = status === 'action_taken';
 
+    useEffect(() => {
+        if (!isClaimed || !nextClaimDate) {
+            setTimeLeft('');
+            return;
+        }
+
+        const interval = setInterval(() => {
+            const now = new Date().getTime();
+            const resetTime = new Date(nextClaimDate).getTime();
+            const difference = resetTime - now;
+
+            if (difference <= 0) {
+                clearInterval(interval);
+                setTimeLeft('Available now (Refresh)');
+            } else {
+                const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+
+                setTimeLeft(`${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`);
+            }
+        }, 1000);
+
+        return () => clearInterval(interval);
+    }, [isClaimed, nextClaimDate]);
+
     const getButtonContent = () => {
+        if (isPageLoading) return 'Loading...';
         if (isLoading) return 'Verifying...';
-        if (isClaimed) return 'Done';
+        if (isClaimed) return timeLeft ? `Wait ${timeLeft}` : 'Done';
         if (needsVerification) return 'Verify';
         return actionLabel;
     };
@@ -43,7 +77,7 @@ export default function QuestCard({
         if (needsVerification) className += ` ${styles.readyToVerify}`;
 
         // Initial state with an external link
-        if (href && status === 'idle') {
+        if (href && status === 'idle' && !isPageLoading) {
             return (
                 <a
                     href={href}
