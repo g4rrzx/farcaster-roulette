@@ -10,34 +10,49 @@
 
 .navContainer {
     display: flex;
-    justify-content: space-around;
+    justify-content: space-between;
     align-items: center;
     padding: 0.5rem;
     border-radius: 1rem;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+    position: relative;
+    overflow: hidden;
+}
+
+.indicator {
+    position: absolute;
+    top: 0.3rem;
+    bottom: 0.3rem;
+    width: calc(33.33% - 0.3rem);
+    background: rgba(0, 242, 255, 0.15);
+    border: 1px solid rgba(0, 242, 255, 0.4);
+    box-shadow: 0 0 15px rgba(0, 242, 255, 0.2);
+    border-radius: 0.75rem;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 1;
 }
 
 .navItem {
+    flex: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 0.25rem;
-    padding: 0.5rem 1.5rem;
+    padding: 0.5rem 0;
     border-radius: 0.75rem;
     color: var(--text-secondary);
     text-decoration: none;
-    transition: all 0.3s ease;
+    transition: color 0.3s ease;
+    z-index: 2;
 }
 
 .navItem:hover {
     color: var(--text-primary);
-    background: rgba(255, 255, 255, 0.05);
 }
 
 .active {
     color: var(--primary);
-    background: rgba(0, 242, 255, 0.1);
-    border: 1px solid rgba(0, 242, 255, 0.2);
+    text-shadow: 0 0 8px rgba(0, 242, 255, 0.5);
 }
 
 .navLabel {

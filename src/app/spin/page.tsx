@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import Image from 'next/image';
+import confetti from 'canvas-confetti';
 import styles from './Spin.module.css';
 import RouletteRing from '@/components/RouletteRing';
 import WelcomeModal from '@/components/WelcomeModal';
@@ -26,6 +27,11 @@ export default function SpinPage() {
 
     const handleSpin = useCallback(async () => {
         if (tickets <= 0 || isSpinning || isProcessingTx || !user) return;
+
+        // Start haptics if supported
+        if (typeof navigator !== 'undefined' && navigator.vibrate) {
+            navigator.vibrate(50);
+        }
 
         setIsProcessingTx(true);
         setResult(null);
@@ -124,9 +130,24 @@ export default function SpinPage() {
 
                 setTimeout(() => {
                     setShowWinner(true);
+                    // Win haptics & Confetti
+                    if (typeof navigator !== 'undefined' && navigator.vibrate) {
+                        navigator.vibrate([100, 50, 100, 50, 200]);
+                    }
+                    confetti({
+                        particleCount: outcome === 'jackpot' ? 250 : 100,
+                        spread: outcome === 'jackpot' ? 120 : 70,
+                        origin: { y: 0.6 },
+                        colors: ['#00f2ff', '#a855f7', '#ffffff']
+                    });
                 }, 3800);
             } else {
                 setStreak(0);
+                setTimeout(() => {
+                    if (typeof navigator !== 'undefined' && navigator.vibrate) {
+                        navigator.vibrate([50]); // Small haptic on loss
+                    }
+                }, 3800);
             }
 
             // 8. Stop spinning after animation completes
@@ -184,7 +205,7 @@ export default function SpinPage() {
     }
 
     return (
-        <main className={styles.mainContainer}>
+        <main className={`${styles.mainContainer} page-transition`}>
             <JackpotTicker />
             <WelcomeModal />
 
@@ -197,10 +218,12 @@ export default function SpinPage() {
 
             {/* Error Toast */}
             {spinError && (
-                <div className={styles.errorToast}>
-                    <span className="material-symbols-outlined" style={{ fontSize: 16 }}>warning</span>
-                    <span>{spinError}</span>
-                    <button onClick={() => setSpinError(null)} className={styles.errorToastClose}>✕</button>
+                <div style={{ position: 'fixed', top: '1rem', left: '50%', transform: 'translateX(-50%)', zIndex: 100 }}>
+                    <div className="toast-glass">
+                        <span className="material-symbols-outlined" style={{ fontSize: 18, color: '#ef4444' }}>warning</span>
+                        <span>{spinError}</span>
+                        <button onClick={() => setSpinError(null)} style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', fontSize: 16, cursor: 'pointer', marginLeft: 'auto', paddingLeft: '8px' }}>✕</button>
+                    </div>
                 </div>
             )}
 

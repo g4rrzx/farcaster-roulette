@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import confetti from 'canvas-confetti';
 import styles from './Quest.module.css';
 import QuestCard from '@/components/QuestCard';
 import { useAuth } from '@/components/AuthProvider';
@@ -73,15 +74,29 @@ export default function QuestPage() {
                 setTickets(data.tickets);
                 // Also update next claim date if this was the daily quest
                 if (data.nextClaimDate) setNextClaimDate(data.nextClaimDate);
+
+                // Haptics & Confetti
+                if (typeof navigator !== 'undefined' && navigator.vibrate) {
+                    navigator.vibrate([50, 50, 100]);
+                }
+                confetti({
+                    particleCount: 100,
+                    spread: 70,
+                    origin: { y: 0.6 },
+                    colors: ['#00f2ff', '#a855f7', '#ffffff']
+                });
+
             } else {
                 // Verification failed — show error and reset
                 setError(data.error || 'Verification failed');
                 updateQuest(questKey, questType === 'daily' ? 'idle' : 'action_taken');
+                if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(50);
             }
         } catch (e) {
             console.error('Quest verify error:', e);
             setError('Network error. Please try again.');
             updateQuest(questKey, questType === 'daily' ? 'idle' : 'action_taken');
+            if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(50);
         }
     };
 
@@ -97,17 +112,19 @@ export default function QuestPage() {
     const handleVerifyRecast = () => verifyQuest('recast', 'recast');
 
     return (
-        <main className={styles.container}>
+        <main className={`${styles.container} page-transition`}>
             <header className={styles.header}>
                 <h1 className={styles.title}>Quest Board</h1>
                 <p className={styles.subtitle}>Complete tasks to earn free tickets</p>
             </header>
 
             {error && (
-                <div className={styles.errorBanner}>
-                    <span className="material-symbols-outlined" style={{ fontSize: 16 }}>error</span>
-                    <span>{error}</span>
-                    <button onClick={() => setError(null)} className={styles.errorClose}>✕</button>
+                <div style={{ position: 'fixed', top: '1rem', left: '50%', transform: 'translateX(-50%)', zIndex: 100 }}>
+                    <div className="toast-glass">
+                        <span className="material-symbols-outlined" style={{ fontSize: 18, color: '#ef4444' }}>warning</span>
+                        <span>{error}</span>
+                        <button onClick={() => setError(null)} style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', fontSize: 16, cursor: 'pointer', marginLeft: 'auto', paddingLeft: '8px' }}>✕</button>
+                    </div>
                 </div>
             )}
 

@@ -88,7 +88,7 @@ export default function ProfilPage() {
     }
 
     return (
-        <main className={styles.container}>
+        <main className={`${styles.container} page-transition`}>
             {/* Ambient Background */}
             <div className={styles.ambientGlow}></div>
 
