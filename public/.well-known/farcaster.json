@@ -1,18 +1,40 @@
 {
     "accountAssociation": {
-        "header": "eyJmaWQiOjkxMTAwMiwidHlwZSI6ImN1c3RvZHkiLCJrZXkiOiIweDJDNjQ0ZTdkODY2ZGU0NThDMTMxNTBjZTBBZTA5ZjllRUFEQjA2OTMifQ==",
-        "payload": "eyJkb21haW4iOiJcm91bGV0ZWUudmVyY2VsLmFwcCJ9",
-        "signature": "MHhkMDY1MWE2OTg0ZjI3MjZkNjExN2Y0ZTdkZGNlMzYwZTlmOGRmOTgxODhlZTVhMTVkZjczMGRiNmJhYzY5YjcxNzNjNGY4MzRmM2Y0OTNlYWZmNWQ2N2IzMTI0ZGEzMWZlNmQwOWU0MTJkYTk2M2RkOGUzZTcyZGMyNWI0OWVhYjFi"
+        "header": "eyJmaWQiOjIzMDk2NTAsInR5cGUiOiJhdXRoIiwia2V5IjoiMHg1RTNCMThlZGI2NWZGMWJhQTU2ZmE2MWQzMzIyN2M3NTc4NWFFODhCIn0",
+        "payload": "eyJkb21haW4iOiJyb3VsZXRlZS52ZXJjZWwuYXBwIn0",
+        "signature": "B+HoUuhwSmO3VVgP26guMvdyQZ6bPzkzPNWhUNeenPcOZfQxx4h8QOUuZseFMbZ3eMM/sqj3TUzDc5b8+E6A5Rs="
     },
     "frame": {
         "version": "1",
         "name": "Arbitrum Roulette",
         "iconUrl": "https://rouletee.vercel.app/icon.png",
         "homeUrl": "https://rouletee.vercel.app",
+        "imageUrl": "https://rouletee.vercel.app/splash.png",
+        "buttonTitle": "Play Roulette",
         "splashImageUrl": "https://rouletee.vercel.app/splash.png",
         "splashBackgroundColor": "#0f172a",
+        "webhookUrl": "https://rouletee.vercel.app/api/webhook",
+        "subtitle": "Spin. Win. Conquer the Arbitrum Casino.",
+        "description": "The premier decentralized roulette experience natively inside Warpcast. Connect your wallet, grab your tickets, and spin the neon wheel for massive ARB rewards directly on Arbitrum One.",
+        "screenshotUrls": [
+            "https://rouletee.vercel.app/splash.png"
+        ],
+        "primaryCategory": "Games",
+        "tags": [
+            "casino",
+            "arbitrum",
+            "roulette",
+            "web3",
+            "games"
+        ],
+        "heroImageUrl": "https://rouletee.vercel.app/splash.png",
+        "tagline": "The thrill of the spin, fully on-chain.",
+        "ogTitle": "Arbitrum Roulette",
+        "ogDescription": "The premier decentralized roulette experience inside Warpcast. Spin the neon wheel for massive ARB rewards.",
+        "ogImageUrl": "https://rouletee.vercel.app/splash.png",
+        "castShareUrl": "https://warpcast.com/~/compose?text=I+just+played+Arbitrum+Roulette%21+Come+spin+the+neon+wheel+and+win+ARB+rewards+on-chain.&embeds[]=https://rouletee.vercel.app",
         "button": {
-            "title": "Open mini app",
+            "title": "Play Roulette",
             "action": {
                 "type": "launch_frame",
                 "name": "Arbitrum Roulette",
