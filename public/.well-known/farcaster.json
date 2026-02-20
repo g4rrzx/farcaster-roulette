@@ -14,12 +14,12 @@
         "splashImageUrl": "https://rouletee.vercel.app/splash.png",
         "splashBackgroundColor": "#0f172a",
         "webhookUrl": "https://rouletee.vercel.app/api/webhook",
-        "subtitle": "Spin. Win. Conquer the Arbitrum Casino.",
-        "description": "The premier decentralized roulette experience natively inside Warpcast. Connect your wallet, grab your tickets, and spin the neon wheel for massive ARB rewards directly on Arbitrum One.",
+        "subtitle": "Play the Arbitrum Casino",
+        "description": "The premier decentralized roulette game inside Warpcast. Connect your wallet, grab tickets, and spin the neon wheel for ARB rewards on-chain.",
         "screenshotUrls": [
             "https://rouletee.vercel.app/splash.png"
         ],
-        "primaryCategory": "Games",
+        "primaryCategory": "games",
         "tags": [
             "casino",
             "arbitrum",
@@ -28,9 +28,9 @@
             "games"
         ],
         "heroImageUrl": "https://rouletee.vercel.app/splash.png",
-        "tagline": "The thrill of the spin, fully on-chain.",
+        "tagline": "Spin to win on Arbitrum",
         "ogTitle": "Arbitrum Roulette",
-        "ogDescription": "The premier decentralized roulette experience inside Warpcast. Spin the neon wheel for massive ARB rewards.",
+        "ogDescription": "Decentralized roulette inside Warpcast. Spin the neon wheel for massive ARB rewards.",
         "ogImageUrl": "https://rouletee.vercel.app/splash.png",
         "castShareUrl": "https://warpcast.com/~/compose?text=I+just+played+Arbitrum+Roulette%21+Come+spin+the+neon+wheel+and+win+ARB+rewards+on-chain.&embeds[]=https://rouletee.vercel.app",
         "button": {
