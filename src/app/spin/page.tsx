@@ -21,6 +21,9 @@ export default function SpinPage() {
     const [showWinner, setShowWinner] = useState(false);
     const [winData, setWinData] = useState({ amount: "0", txHash: "" });
 
+    // Error toast state
+    const [spinError, setSpinError] = useState<string | null>(null);
+
     const handleSpin = useCallback(async () => {
         if (tickets <= 0 || isSpinning || isProcessingTx || !user) return;
 
@@ -123,8 +126,18 @@ export default function SpinPage() {
 
         } catch (error: unknown) {
             console.error("Spin error:", error);
-            const msg = error instanceof Error ? error.message : "An error occurred while trying to spin";
-            alert(msg);
+            const raw = error instanceof Error ? error.message : "Something went wrong";
+            // Map common errors to friendly messages
+            let msg = raw;
+            if (raw.toLowerCase().includes('rejected') || raw.toLowerCase().includes('denied')) {
+                msg = 'Transaction cancelled';
+            } else if (raw.includes('Insufficient')) {
+                msg = 'Not enough tickets. Complete quests to earn more!';
+            } else if (raw.includes('not found') || raw.includes('not confirmed')) {
+                msg = 'Transaction not confirmed yet. Please wait a moment and try again.';
+            }
+            setSpinError(msg);
+            setTimeout(() => setSpinError(null), 4000);
             setIsProcessingTx(false);
             setIsSpinning(false);
         }
@@ -140,7 +153,8 @@ export default function SpinPage() {
             }
         } catch (e) {
             console.error(e);
-            alert("Failed to connect wallet.");
+            setSpinError('Failed to connect wallet. Please try again.');
+            setTimeout(() => setSpinError(null), 4000);
         }
     };
 
@@ -170,6 +184,15 @@ export default function SpinPage() {
                 txHash={winData.txHash}
                 onDismiss={() => setShowWinner(false)}
             />
+
+            {/* Error Toast */}
+            {spinError && (
+                <div className={styles.errorToast}>
+                    <span className="material-symbols-outlined" style={{ fontSize: 16 }}>warning</span>
+                    <span>{spinError}</span>
+                    <button onClick={() => setSpinError(null)} className={styles.errorToastClose}>✕</button>
+                </div>
+            )}
 
             {/* Header / Top Bar */}
             <header className={styles.header}>
