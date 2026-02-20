@@ -98,7 +98,7 @@ export default function QuestPage() {
                         description="Engage with our latest announcement."
                         reward="+1 Ticket 🎟️"
                         actionLabel="Go to Cast"
-                        href="https://warpcast.com/fcmini"
+                        href="https://farcaster.xyz/fcmini/0xd77c1cf1"
                         status={quests.recast}
                         onActionTaken={handleRecastAction}
                         onVerify={handleVerifyRecast}

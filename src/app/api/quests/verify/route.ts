@@ -7,6 +7,7 @@ export const dynamic = 'force-dynamic';
 
 const NEYNAR_API_BASE = 'https://api.neynar.com/v2/farcaster';
 const TARGET_FID = 2309650; // @fcmini FID — change if different
+const TARGET_CAST_HASH = '0xd77c1cf1';
 
 async function neynarGet(path: string): Promise<Record<string, unknown>> {
     const apiKey = process.env.NEYNAR_API_KEY;
@@ -35,15 +36,19 @@ async function verifyFollow(fid: number): Promise<boolean> {
 }
 
 async function verifyRecast(fid: number): Promise<boolean> {
-    // For recast verification, check recent user activity
-    // Simple approach: verify they have recent interactions with our account
-    const data = await neynarGet(`/feed/user/${fid}/replies_and_recasts?limit=25`);
-    const casts = data.casts as Array<{ author?: { fid: number }; text?: string }> | undefined;
-    if (casts && casts.length > 0) {
-        // Check if any recast relates to our target
-        return true; // For now, if they have any recasts, consider it valid
+    // Verify user has liked and recasted the specific target cast
+    try {
+        const data = await neynarGet(`/cast?identifier=${TARGET_CAST_HASH}&type=hash&viewer_fid=${fid}`);
+        const viewerContext = (data.cast as any)?.viewer_context;
+
+        if (viewerContext) {
+            return viewerContext.liked === true && viewerContext.recasted === true;
+        }
+        return false;
+    } catch (e) {
+        console.error(`Error verifying recast/like for cast ${TARGET_CAST_HASH}:`, e);
+        return false;
     }
-    return false;
 }
 
 export async function POST(req: NextRequest) {
