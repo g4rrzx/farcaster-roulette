@@ -8,57 +8,28 @@ import WelcomeModal from '@/components/WelcomeModal';
 import WinnerModal from '@/components/WinnerModal';
 import { useAuth } from '@/components/AuthProvider';
 import JackpotTicker from '@/components/JackpotTicker';
-import sdk from '@farcaster/frame-sdk';
 import { encodeFunctionData } from 'viem';
 
 export default function SpinPage() {
     const { user, walletAddress, setWalletAddress, tickets, setTickets } = useAuth();
     const [isSpinning, setIsSpinning] = useState(false);
+    const [isProcessingTx, setIsProcessingTx] = useState(false);
     const [result, setResult] = useState<null | 'win' | 'loss' | 'jackpot'>(null);
-    const [isClaiming, setIsClaiming] = useState(false);
     const [streak, setStreak] = useState(0);
 
     // Winner modal state
     const [showWinner, setShowWinner] = useState(false);
     const [winData, setWinData] = useState({ amount: "0", txHash: "" });
 
-    const handleClaimTicket = useCallback(async () => {
-        if (isClaiming || !user) return;
-        setIsClaiming(true);
+    const handleSpin = useCallback(async () => {
+        if (tickets <= 0 || isSpinning || isProcessingTx || !user) return;
 
-        try {
-            const res = await fetch('/api/users/claim-ticket', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${user.fid}` // Passing FID as simple auth for MVP
-                }
-            });
-
-            if (res.ok) {
-                const data = await res.json();
-                if (data.success) {
-                    setTickets(data.tickets);
-                }
-            } else {
-                throw new Error("Failed to claim ticket from server");
-            }
-        } catch (error) {
-            console.error(error);
-            alert("Could not claim ticket. Backend might be unreachable.");
-        } finally {
-            setIsClaiming(false);
-        }
-    }, [isClaiming, user, setTickets]);
-
-    const handleSpin = async () => {
-        if (tickets <= 0 || isSpinning || !user) return;
-
-        setIsSpinning(true);
+        setIsProcessingTx(true);
         setResult(null);
 
         try {
-            // 1. Get Wallet Address from Farcaster App context if not already set
+            // 1. Get wallet provider via dynamic import
+            const { default: sdk } = await import('@farcaster/frame-sdk');
             const provider = await sdk.wallet.ethProvider;
             const accounts = await provider.request({ method: "eth_requestAccounts" });
             const userWallet = (accounts as string[])[0];
@@ -82,7 +53,7 @@ export default function SpinPage() {
 
             const { signature, nonce, contractAddress, spinFee } = prepareData;
 
-            // 3. Initiate Farcaster Transaction
+            // 3. Build transaction data
             const abi = [{
                 inputs: [
                     { internalType: "uint256", name: "currentNonce", type: "uint256" },
@@ -100,20 +71,18 @@ export default function SpinPage() {
                 args: [BigInt(nonce), signature]
             });
 
-            // Farcaster Frame v2 native transaction bridging via EIP-1193 provider
+            // 4. Send transaction via Farcaster wallet popup — wheel NOT spinning yet
             const txHash = await provider.request({
                 method: "eth_sendTransaction",
                 params: [{
                     to: contractAddress,
                     data: callData,
-                    value: `0x${BigInt(spinFee).toString(16)}`, // Hex format required
-                    chainId: "0xa4b1" // 42161 in hex (Arbitrum One)
+                    value: `0x${BigInt(spinFee).toString(16)}`,
+                    chainId: "0xa4b1"
                 }]
             }) as string;
 
-            // 4. Temporarily show wheel spinning locally while we wait for verification 
-            // (In a real app, you might wait for verification first before spinning, or spin optimistically then verify)
-
+            // 5. Verify on backend
             const verifyRes = await fetch('/api/spin/verify', {
                 method: 'POST',
                 headers: {
@@ -128,44 +97,47 @@ export default function SpinPage() {
                 throw new Error(verifyData.error || 'Transaction verification failed');
             }
 
-            // 6. Resolve UI State from backend deterministic result
+            // 6. Transaction confirmed! Now set the result and START spinning
             const outcome = verifyData.result as 'win' | 'loss' | 'jackpot';
             setResult(outcome);
             setTickets(verifyData.newTickets);
+            setIsProcessingTx(false);
+            setIsSpinning(true);
 
+            // 7. After wheel animation (~3.5s), show winner modal if won
             if (outcome === 'win' || outcome === 'jackpot') {
                 setStreak((prev) => prev + 1);
                 setWinData({ amount: verifyData.payout.toString(), txHash: txHash });
 
-                // Show modal after wheel stops spinning (~3.5s)
                 setTimeout(() => {
                     setShowWinner(true);
-                }, 3600);
+                }, 3800);
             } else {
                 setStreak(0);
             }
+
+            // 8. Stop spinning after animation completes
+            setTimeout(() => {
+                setIsSpinning(false);
+            }, 4000);
 
         } catch (error: unknown) {
             console.error("Spin error:", error);
             const msg = error instanceof Error ? error.message : "An error occurred while trying to spin";
             alert(msg);
-            setResult('loss'); // Fallback
-        } finally {
-            setTimeout(() => {
-                setIsSpinning(false);
-            }, 3000); // Ensure the wheel animation completes at least roughly
+            setIsProcessingTx(false);
+            setIsSpinning(false);
         }
-    };
+    }, [tickets, isSpinning, isProcessingTx, user, setTickets]);
 
     const handleManualConnect = async () => {
         try {
-            import('@farcaster/frame-sdk').then(async ({ default: sdk }) => {
-                const provider = await sdk.wallet.ethProvider;
-                const accounts = await provider.request({ method: "eth_requestAccounts" });
-                if (accounts && (accounts as string[])[0]) {
-                    setWalletAddress((accounts as string[])[0]);
-                }
-            });
+            const { default: sdk } = await import('@farcaster/frame-sdk');
+            const provider = await sdk.wallet.ethProvider;
+            const accounts = await provider.request({ method: "eth_requestAccounts" });
+            if (accounts && (accounts as string[])[0]) {
+                setWalletAddress((accounts as string[])[0]);
+            }
         } catch (e) {
             console.error(e);
             alert("Failed to connect wallet.");
@@ -177,7 +149,7 @@ export default function SpinPage() {
             <main className={styles.mainContainer} style={{ justifyContent: 'center', alignItems: 'center', height: '100vh', display: 'flex', flexDirection: 'column' }}>
                 <div style={{ textAlign: 'center', zIndex: 10, padding: '2rem' }}>
                     <span className="material-symbols-outlined neon-text-glow" style={{ fontSize: 64, color: 'var(--text-primary)', marginBottom: '1rem' }}>account_balance_wallet</span>
-                    <h1 style={{ marginBottom: '1rem' }}>Wallet & Farcaster Profile Needed</h1>
+                    <h1 style={{ marginBottom: '1rem' }}>Wallet &amp; Farcaster Profile Needed</h1>
                     <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem' }}>Please connect your unified Farcaster wallet to load the Roulette wheel.</p>
                     <button onClick={handleManualConnect} className="btn-primary" style={{ animation: 'none' }}>
                         Connect SDK
@@ -203,7 +175,7 @@ export default function SpinPage() {
             <header className={styles.header}>
                 <div className={styles.logoContainer}>
                     <div className={styles.logoIcon}>
-                        <span className="material-symbols-outlined text-primary">casino</span>
+                        <Image src="/icon.png" alt="Arbitrum Roulette" width={28} height={28} />
                     </div>
                     <div>
                         <h1 className={styles.title}>Farcaster <span className="text-primary">Roulette</span></h1>
@@ -248,20 +220,23 @@ export default function SpinPage() {
             <div className={styles.gameArea}>
                 <RouletteRing
                     isSpinning={isSpinning}
+                    isProcessingTx={isProcessingTx}
                     result={result}
                     onSpin={handleSpin}
-                    disabled={tickets <= 0 || isSpinning}
+                    disabled={tickets <= 0 || isSpinning || isProcessingTx}
                 />
 
                 <div className={styles.controlsArea}>
                     <div className={styles.statusMessage}>
-                        {isSpinning ? (
+                        {isProcessingTx ? (
                             <>
-                                <p className={`${styles.statusText} neon-text-glow`}>Reading luck...</p>
+                                <p className={`${styles.statusText} neon-text-glow`}>Confirming Transaction...</p>
                                 <div className={styles.loaderBar}>
                                     <div className={styles.loaderProgress}></div>
                                 </div>
                             </>
+                        ) : isSpinning ? (
+                            <p className={`${styles.statusText} neon-text-glow`}>Spinning...</p>
                         ) : (
                             <p className={styles.statusText}>
                                 {result
@@ -272,27 +247,10 @@ export default function SpinPage() {
                                             : 'ZONK! Try Again 💀'
                                     : tickets > 0
                                         ? 'Ready to Spin'
-                                        : 'Claim a Ticket to Play'}
+                                        : 'Earn Tickets from Quest Board'}
                             </p>
                         )}
                     </div>
-
-                    {tickets <= 0 && (
-                        <button
-                            className={styles.claimButton}
-                            onClick={handleClaimTicket}
-                            disabled={isClaiming}
-                        >
-                            {isClaiming ? (
-                                <span className={styles.claimSpinner}></span>
-                            ) : (
-                                <>
-                                    <span>🎟️</span>
-                                    <span>Claim Free Ticket</span>
-                                </>
-                            )}
-                        </button>
-                    )}
                 </div>
             </div>
         </main>

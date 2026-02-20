@@ -27,7 +27,7 @@ export async function loginFarcasterUser(
             totalWins: 0,
             totalLosses: 0,
             totalSpins: 0,
-            freeSpins: 5, // Give 5 free initial tickets
+            freeSpins: 0, // Start with 0 tickets — earn via quest board
             createdAt: new Date(),
             updatedAt: new Date(),
         };

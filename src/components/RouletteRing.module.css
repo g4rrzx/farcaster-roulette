@@ -23,12 +23,10 @@
 @keyframes glowPulse {
     from {
         opacity: 0.5;
-        transform: scale(0.95);
     }
 
     to {
         opacity: 0.8;
-        transform: scale(1.05);
     }
 }
 

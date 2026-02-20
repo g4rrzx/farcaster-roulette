@@ -7,12 +7,13 @@ import { triggerHaptic } from '@/utils/haptics';
 
 interface RouletteRingProps {
     isSpinning: boolean;
+    isProcessingTx?: boolean;
     result: 'win' | 'loss' | 'jackpot' | null;
     onSpin: () => void;
     disabled?: boolean;
 }
 
-export default function RouletteRing({ isSpinning, result, onSpin, disabled }: RouletteRingProps) {
+export default function RouletteRing({ isSpinning, isProcessingTx, result, onSpin, disabled }: RouletteRingProps) {
     const wheelRef = useRef<HTMLDivElement>(null);
     const pointerRef = useRef<HTMLDivElement>(null);
     const rotationRef = useRef(0);
@@ -181,7 +182,7 @@ export default function RouletteRing({ isSpinning, result, onSpin, disabled }: R
 
             {/* Static Center Hub (Interactive Button) */}
             <div className={styles.hub}>
-                <SpinButton onClick={onSpin} disabled={disabled} />
+                <SpinButton onClick={onSpin} disabled={disabled} isProcessing={isProcessingTx} />
             </div>
 
             {/* Pointer / Flapper */}

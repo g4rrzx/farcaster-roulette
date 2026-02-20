@@ -118,11 +118,45 @@
     0%,
     100% {
         opacity: 0.3;
-        transform: scale(1);
     }
 
     50% {
         opacity: 0.6;
-        transform: scale(1.1);
+    }
+}
+
+.processing {
+    cursor: wait;
+}
+
+.processing .innerRing {
+    background: radial-gradient(circle at 30% 30%, #0891b2, #0e7490);
+    animation: processingGlow 1.5s ease-in-out infinite;
+}
+
+@keyframes processingGlow {
+
+    0%,
+    100% {
+        box-shadow: inset 0 4px 12px rgba(255, 255, 255, 0.4), 0 0 15px var(--primary-glow);
+    }
+
+    50% {
+        box-shadow: inset 0 4px 12px rgba(255, 255, 255, 0.6), 0 0 30px var(--primary-glow);
+    }
+}
+
+.processingSpinner {
+    width: 24px;
+    height: 24px;
+    border: 3px solid rgba(255, 255, 255, 0.2);
+    border-top-color: #ffffff;
+    border-radius: 50%;
+    animation: spinAnim 0.8s linear infinite;
+}
+
+@keyframes spinAnim {
+    to {
+        transform: rotate(360deg);
     }
 }

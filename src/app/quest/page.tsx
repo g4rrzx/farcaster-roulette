@@ -8,8 +8,7 @@ import { useAuth } from '@/components/AuthProvider';
 type QuestStatus = 'idle' | 'action_taken' | 'verifying' | 'claimed';
 
 export default function QuestPage() {
-    // Consume global tickets state
-    const { setTickets } = useAuth();
+    const { user, setTickets } = useAuth();
 
     const [quests, setQuests] = useState<{
         daily: QuestStatus;
@@ -21,56 +20,67 @@ export default function QuestPage() {
         recast: 'idle',
     });
 
+    const [error, setError] = useState<string | null>(null);
+
     const updateQuest = (key: keyof typeof quests, status: QuestStatus) => {
         setQuests(prev => ({ ...prev, [key]: status }));
     };
 
-    const awardTicket = () => {
-        // Increase global ticket balance
-        setTickets(prev => prev + 1);
+    const verifyQuest = async (questType: 'daily' | 'follow' | 'recast', questKey: keyof typeof quests) => {
+        if (!user) return;
+
+        updateQuest(questKey, 'verifying');
+        setError(null);
+
+        try {
+            const res = await fetch('/api/quests/verify', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ fid: user.fid, questType }),
+            });
+
+            const data = await res.json();
+
+            if (res.ok && data.success) {
+                updateQuest(questKey, 'claimed');
+                setTickets(data.tickets);
+            } else {
+                // Verification failed — show error and reset
+                setError(data.error || 'Verification failed');
+                updateQuest(questKey, questType === 'daily' ? 'idle' : 'action_taken');
+            }
+        } catch (e) {
+            console.error('Quest verify error:', e);
+            setError('Network error. Please try again.');
+            updateQuest(questKey, questType === 'daily' ? 'idle' : 'action_taken');
+        }
     };
 
     // --- DAILY CHECK-IN ---
-    // Daily doesn't have an external link, so it just goes straight to verifying -> claimed
-    const handleDailyClaim = async () => {
-        updateQuest('daily', 'verifying');
-        // Simulated API delay
-        await new Promise(r => setTimeout(r, 1000));
-        updateQuest('daily', 'claimed');
-        awardTicket();
-    };
+    const handleDailyClaim = () => verifyQuest('daily', 'daily');
 
-    // --- FOLLOW (External Link) ---
-    // Step 1: User clicks link
-    const handleFollowAction = () => {
-        updateQuest('follow', 'action_taken');
-    };
-    // Step 2: User clicks Verify
-    const handleVerifyFollow = async () => {
-        updateQuest('follow', 'verifying');
-        // Mock backend verify via Neynar
-        await new Promise(r => setTimeout(r, 1500));
-        updateQuest('follow', 'claimed');
-        awardTicket();
-    };
+    // --- FOLLOW ---
+    const handleFollowAction = () => updateQuest('follow', 'action_taken');
+    const handleVerifyFollow = () => verifyQuest('follow', 'follow');
 
-    // --- RECAST (External Link) ---
-    const handleRecastAction = () => {
-        updateQuest('recast', 'action_taken');
-    };
-    const handleVerifyRecast = async () => {
-        updateQuest('recast', 'verifying');
-        await new Promise(r => setTimeout(r, 1500));
-        updateQuest('recast', 'claimed');
-        awardTicket();
-    };
+    // --- RECAST ---
+    const handleRecastAction = () => updateQuest('recast', 'action_taken');
+    const handleVerifyRecast = () => verifyQuest('recast', 'recast');
 
     return (
         <main className={styles.container}>
             <header className={styles.header}>
                 <h1 className={styles.title}>Quest Board</h1>
-                <p className={styles.subtitle}>Complete tasks to earn tickets</p>
+                <p className={styles.subtitle}>Complete tasks to earn free tickets</p>
             </header>
+
+            {error && (
+                <div className={styles.errorBanner}>
+                    <span className="material-symbols-outlined" style={{ fontSize: 16 }}>error</span>
+                    <span>{error}</span>
+                    <button onClick={() => setError(null)} className={styles.errorClose}>✕</button>
+                </div>
+            )}
 
             <div className={styles.section}>
                 <h2 className={styles.sectionTitle}>Daily Tasks</h2>
@@ -82,7 +92,6 @@ export default function QuestPage() {
                         actionLabel="Claim"
                         status={quests.daily}
                         onActionTaken={handleDailyClaim}
-                    // onVerify not needed since it's a 1-step claim process
                     />
                     <QuestCard
                         title="Like & Recast"

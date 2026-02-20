@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useSyncExternalStore } from 'react';
+import { useState, useEffect, useSyncExternalStore } from 'react';
 import Image from 'next/image';
 import styles from './Profil.module.css';
 import StatBox from '@/components/StatBox';
@@ -13,20 +13,19 @@ interface HistoryItem {
     time: string;
 }
 
+interface ProfileStats {
+    totalWins: number;
+    totalSpins: number;
+    totalLosses: number;
+    balance: number;
+    tickets: number;
+}
+
 export default function ProfilPage() {
     const { user, walletAddress, setWalletAddress } = useAuth();
-    const [stats] = useState({ wins: 0, spins: 0, ticketsClaimed: 0 });
-    const [history] = useState<HistoryItem[]>([]);
-
-    const [particleStyles] = useState<{ left: string, delay: string, duration: string }[]>(() => {
-        if (typeof window === 'undefined') return [];
-        return Array.from({ length: 15 }).map(() => ({
-            left: `${Math.random() * 100}%`,
-            delay: `${Math.random() * 5}s`,
-            duration: `${5 + Math.random() * 5}s`,
-        }));
-    });
-
+    const [stats, setStats] = useState<ProfileStats>({ totalWins: 0, totalSpins: 0, totalLosses: 0, balance: 0, tickets: 0 });
+    const [history, setHistory] = useState<HistoryItem[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
 
     const isClient = useSyncExternalStore(
         () => () => { },
@@ -34,17 +33,38 @@ export default function ProfilPage() {
         () => false
     );
 
+    // Fetch profile data from API
+    useEffect(() => {
+        async function fetchProfile() {
+            if (!user?.fid) return;
+
+            try {
+                const res = await fetch(`/api/users/profile?fid=${user.fid}`);
+                if (res.ok) {
+                    const data = await res.json();
+                    setStats(data.stats);
+                    setHistory(data.history || []);
+                }
+            } catch (e) {
+                console.error('Failed to fetch profile:', e);
+            } finally {
+                setIsLoading(false);
+            }
+        }
+
+        fetchProfile();
+    }, [user?.fid]);
+
     if (!isClient) return null;
 
     const handleManualConnect = async () => {
         try {
-            import('@farcaster/frame-sdk').then(async ({ default: sdk }) => {
-                const provider = await sdk.wallet.ethProvider;
-                const accounts = await provider.request({ method: "eth_requestAccounts" });
-                if (accounts && (accounts as string[])[0]) {
-                    setWalletAddress((accounts as string[])[0]);
-                }
-            });
+            const { default: sdk } = await import('@farcaster/frame-sdk');
+            const provider = await sdk.wallet.ethProvider;
+            const accounts = await provider.request({ method: "eth_requestAccounts" });
+            if (accounts && (accounts as string[])[0]) {
+                setWalletAddress((accounts as string[])[0]);
+            }
         } catch (e) {
             console.error(e);
             alert("Failed to connect wallet.");
@@ -69,21 +89,8 @@ export default function ProfilPage() {
 
     return (
         <main className={styles.container}>
-            {/* Ambient Background Particles */}
+            {/* Ambient Background */}
             <div className={styles.ambientGlow}></div>
-            <div className={styles.particlesContainer}>
-                {particleStyles.map((style, i) => (
-                    <div
-                        key={i}
-                        className={styles.particle}
-                        style={{
-                            left: style.left,
-                            animationDelay: style.delay,
-                            animationDuration: style.duration,
-                        }}
-                    />
-                ))}
-            </div>
 
             <header className={styles.header}>
                 <div className={styles.avatarContainer}>
@@ -110,9 +117,15 @@ export default function ProfilPage() {
             </header>
 
             <div className={styles.statsGrid}>
-                <StatBox label="Wins" value={stats.wins} highlight />
-                <StatBox label="Spins" value={stats.spins} />
-                <StatBox label="Tickets" value={stats.ticketsClaimed} />
+                {isLoading ? (
+                    <p style={{ color: 'var(--text-secondary)', textAlign: 'center', width: '100%' }}>Loading stats...</p>
+                ) : (
+                    <>
+                        <StatBox label="Wins" value={stats.totalWins} highlight />
+                        <StatBox label="Spins" value={stats.totalSpins} />
+                        <StatBox label="Tickets" value={stats.tickets} />
+                    </>
+                )}
             </div>
 
             <div className={styles.section}>
