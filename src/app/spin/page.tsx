@@ -74,14 +74,23 @@ export default function SpinPage() {
                 args: [BigInt(nonce), signature]
             });
 
-            // 4. Send transaction via Farcaster wallet popup — wheel NOT spinning yet
+            // 4. Switch to Arbitrum One chain first
+            try {
+                await provider.request({
+                    method: "wallet_switchEthereumChain",
+                    params: [{ chainId: "0xa4b1" }] // 42161 in hex
+                });
+            } catch {
+                // Chain switch may fail if already on correct chain — that's OK
+            }
+
+            // 5. Send transaction via Farcaster wallet popup — wheel NOT spinning yet
             const txHash = await provider.request({
                 method: "eth_sendTransaction",
                 params: [{
                     to: contractAddress as `0x${string}`,
                     data: callData,
                     value: `0x${BigInt(spinFee).toString(16)}`,
-                    chainId: 42161 as any // Farcaster requires integer, but Viem/EIP-1193 types expect hex string
                 }]
             }) as `0x${string}`;
 
