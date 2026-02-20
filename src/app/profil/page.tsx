@@ -95,7 +95,8 @@ export default function ProfilPage() {
             <header className={styles.header}>
                 <div className={styles.avatarContainer}>
                     {user?.pfpUrl ? (
-                        <Image
+                        /* eslint-disable-next-line @next/next/no-img-element */
+                        <img
                             src={user.pfpUrl}
                             alt={user.displayName || user.username || 'User'}
                             width={96}

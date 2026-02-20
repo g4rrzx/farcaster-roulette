@@ -229,7 +229,8 @@ export default function SpinPage() {
                     </div>
                     <div className={styles.avatar}>
                         {user?.pfpUrl ? (
-                            <Image
+                            /* eslint-disable-next-line @next/next/no-img-element */
+                            <img
                                 src={user.pfpUrl}
                                 alt={user.displayName || user.username || 'User'}
                                 width={48}
