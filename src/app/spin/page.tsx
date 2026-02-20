@@ -11,7 +11,7 @@ import JackpotTicker from '@/components/JackpotTicker';
 export default function SpinPage() {
     const { user } = useAuth();
     const [isSpinning, setIsSpinning] = useState(false);
-    const [result, setResult] = useState<null | 'win' | 'loss'>(null);
+    const [result, setResult] = useState<null | 'win' | 'loss' | 'jackpot'>(null);
     const [tickets, setTickets] = useState(0);
     const [isClaiming, setIsClaiming] = useState(false);
     const [streak, setStreak] = useState(0);
@@ -38,24 +38,39 @@ export default function SpinPage() {
         setResult(null);
         setTickets((prev) => prev - 1);
 
-        // Simulate backend spin call
+        // Simulate backend spin call for UI testing until Web3 is hooked up
         setTimeout(() => {
             setIsSpinning(false);
-            const won = Math.random() > 0.5;
 
-            if (won) {
-                setResult('win');
+            // Randomly trigger the 3 states for UI testing
+            const random = Math.random();
+            let outcome: 'win' | 'loss' | 'jackpot' = 'loss';
+            let amount = "0";
+
+            if (random > 0.9) {
+                outcome = 'jackpot';
+                amount = "0.05";
+            } else if (random > 0.5) {
+                outcome = 'win';
+                amount = "0.01";
+            }
+
+            setResult(outcome);
+
+            if (outcome === 'win' || outcome === 'jackpot') {
                 setStreak((prev) => prev + 1);
-                const amount = (Math.floor(Math.random() * 50) + 10).toString();
-                // Simulated tx hash — will come from contract later
+                // Simulated tx hash
                 const fakeTx = `0x${Array.from({ length: 64 }, () => Math.floor(Math.random() * 16).toString(16)).join('')}`;
                 setWinData({ amount, txHash: fakeTx });
-                setShowWinner(true);
+
+                // Show modal after wheel stops spinning (wheel animation is ~3.5s)
+                setTimeout(() => {
+                    setShowWinner(true);
+                }, 3600);
             } else {
-                setResult('loss');
                 setStreak(0);
             }
-        }, 3000);
+        }, 1500); // 1.5s delay to simulate network request before wheel stops
     };
 
     return (
@@ -131,9 +146,11 @@ export default function SpinPage() {
                         ) : (
                             <p className={styles.statusText}>
                                 {result
-                                    ? result === 'win'
-                                        ? '🏆 YOU WON!'
-                                        : 'Try Again'
+                                    ? result === 'jackpot'
+                                        ? '🏆 MEGA JACKPOT!'
+                                        : result === 'win'
+                                            ? '✨ ARB REWARD!'
+                                            : 'ZONK! Try Again 💀'
                                     : tickets > 0
                                         ? 'Ready to Spin'
                                         : 'Claim a Ticket to Play'}

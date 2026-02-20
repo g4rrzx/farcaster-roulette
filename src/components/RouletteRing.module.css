@@ -71,36 +71,103 @@
     box-shadow: 0 0 5px rgba(0, 242, 255, 0.5);
 }
 
-/* 2. Segments Layer */
+/* 2. Segments Layer (Background Colors) */
 .segments {
     position: absolute;
     inset: 20px;
     /* Rim thickness */
     border-radius: 50%;
-    background: conic-gradient(#00f2ff 0deg 45deg,
-            /* Win */
-            #0f172a 45deg 90deg,
-            /* Loss */
-            #a855f7 90deg 135deg,
-            /* Win Purple */
-            #0f172a 135deg 180deg,
-            /* Loss */
-            #00f2ff 180deg 225deg,
-            /* Win */
-            #0f172a 225deg 270deg,
-            /* Loss */
-            #a855f7 270deg 315deg,
-            /* Win Purple */
-            #0f172a 315deg 360deg
-            /* Loss */
-        );
+    background: conic-gradient(
+            /* 1. ZONK */
+            #0f172a 0deg 45deg,
+            /* 2. ARB (Win) */
+            #00f2ff 45deg 90deg,
+            /* 3. ZONK */
+            #0f172a 90deg 135deg,
+            /* 4. ARB (Win) */
+            #00f2ff 135deg 180deg,
+            /* 5. ZONK */
+            #0f172a 180deg 225deg,
+            /* 6. JACKPOT */
+            #facc15 225deg 270deg,
+            /* 7. ZONK */
+            #0f172a 270deg 315deg,
+            /* 8. ARB (Win) */
+            #00f2ff 315deg 360deg);
     box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8);
     /* Mask out center */
     -webkit-mask: radial-gradient(transparent 40%, black 41%);
     mask: radial-gradient(transparent 40%, black 41%);
 }
 
-/* 3. Divider Lines */
+/* 3. Segment Texts Layer */
+.segmentTexts {
+    position: absolute;
+    inset: 20px;
+    /* same as segments */
+    border-radius: 50%;
+    z-index: 11;
+    pointer-events: none;
+}
+
+/* Individual text containers rotated into position */
+.segmentText {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 50px;
+    /* enough width for text */
+    height: 50%;
+    /* from center to top edge */
+    margin-left: -25px;
+    transform-origin: bottom center;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding-top: 20px;
+    /* Distance from outer rim */
+}
+
+/* Text styles */
+.textZonk {
+    color: #475569;
+    font-weight: 800;
+    font-size: 16px;
+    letter-spacing: 1px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+    transform: rotate(90deg);
+}
+
+.textArb {
+    color: #0f172a;
+    font-weight: 900;
+    font-size: 14px;
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+    transform: rotate(90deg);
+}
+
+.textJackpot {
+    color: #fff;
+    font-weight: 900;
+    font-size: 14px;
+    letter-spacing: 1px;
+    text-shadow: 0 0 10px #facc15, 0 0 20px #facc15, 0 0 30px #eab308;
+    animation: jackpotPulse 1s infinite alternate;
+    transform: rotate(90deg);
+}
+
+@keyframes jackpotPulse {
+    from {
+        text-shadow: 0 0 10px #facc15, 0 0 20px #facc15;
+    }
+
+    to {
+        text-shadow: 0 0 15px #facc15, 0 0 30px #facc15, 0 0 40px #eab308;
+    }
+}
+
+
+/* 4. Divider Lines */
 .gridLines {
     position: absolute;
     inset: 20px;
@@ -112,7 +179,7 @@
     z-index: 12;
 }
 
-/* 4. Inner Shadow */
+/* Inner Shadow */
 .innerShadow {
     position: absolute;
     inset: 20px;
@@ -136,33 +203,6 @@
     display: flex;
     justify-content: center;
     align-items: center;
-}
-
-.reactorCore {
-    width: 70%;
-    height: 70%;
-    border-radius: 50%;
-    background: #000;
-    position: relative;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    box-shadow: inset 0 0 10px #00f2ff;
-    overflow: hidden;
-}
-
-.reactorRing {
-    position: absolute;
-    inset: 2px;
-    border: 2px dashed rgba(0, 242, 255, 0.4);
-    border-radius: 50%;
-    animation: spinSlow 10s linear infinite;
-}
-
-@keyframes spinSlow {
-    to {
-        transform: rotate(360deg);
-    }
 }
 
 /* Pointer */
@@ -229,10 +269,15 @@
     }
 
     .segments,
+    .segmentTexts,
     .gridLines,
     .innerShadow {
         inset: 26px;
         /* Larger rim */
+    }
+
+    .segmentText {
+        padding-top: 30px;
     }
 
     .bolt {
