@@ -8,5 +8,5 @@ if (!process.env.DATABASE_URL) {
     console.warn('⚠️  DATABASE_URL is missing from environment variables. Using dummy connection for build phase.');
 }
 
-const client = postgres(connectionString);
+const client = postgres(connectionString, { prepare: false });
 export const db = drizzle(client, { schema });
