@@ -25,7 +25,12 @@ export default function QuestPage() {
 
     const [nextClaimDate, setNextClaimDate] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+    const [modalState, setModalState] = useState<{ isOpen: boolean; title: string; message: string; type: 'success' | 'error' }>({
+        isOpen: false,
+        title: '',
+        message: '',
+        type: 'success',
+    });
 
     // Fetch quest status from database
     useEffect(() => {
@@ -60,7 +65,7 @@ export default function QuestPage() {
         if (!user || isLoading) return;
 
         updateQuest(questKey, 'verifying');
-        setError(null);
+        setModalState(prev => ({ ...prev, isOpen: false }));
 
         try {
             const res = await fetch('/api/quests/verify', {
@@ -74,10 +79,8 @@ export default function QuestPage() {
             if (res.ok && data.success) {
                 updateQuest(questKey, 'claimed');
                 setTickets(data.tickets);
-                // Also update next claim date if this was the daily quest
                 if (data.nextClaimDate) setNextClaimDate(data.nextClaimDate);
 
-                // Haptics & Confetti
                 if (typeof navigator !== 'undefined' && navigator.vibrate) {
                     navigator.vibrate([50, 50, 100]);
                 }
@@ -88,17 +91,38 @@ export default function QuestPage() {
                     colors: ['#00f2ff', '#a855f7', '#ffffff']
                 });
 
+                // Show Success Modal
+                setModalState({
+                    isOpen: true,
+                    title: 'Congratulations! 🎉',
+                    message: data.message || `Quest completed! You earned a ticket.`,
+                    type: 'success'
+                });
+
             } else {
-                // Verification failed — show error and reset
-                setError(data.error || 'Verification failed');
                 updateQuest(questKey, questType === 'daily' ? 'idle' : 'action_taken');
                 if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(50);
+
+                // Show Error Modal
+                setModalState({
+                    isOpen: true,
+                    title: 'Oops! 😬',
+                    message: data.error || 'Verification failed. Please try again.',
+                    type: 'error'
+                });
             }
         } catch (e) {
             console.error('Quest verify error:', e);
-            setError('Network error. Please try again.');
             updateQuest(questKey, questType === 'daily' ? 'idle' : 'action_taken');
             if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(50);
+
+            // Show Error Modal for Network Error
+            setModalState({
+                isOpen: true,
+                title: 'Connection Error',
+                message: 'Network error. Please try again later.',
+                type: 'error'
+            });
         }
     };
 
@@ -124,12 +148,23 @@ export default function QuestPage() {
                 <p className={styles.subtitle}>Complete tasks to earn free tickets</p>
             </header>
 
-            {error && (
-                <div style={{ position: 'fixed', top: '1rem', left: '50%', transform: 'translateX(-50%)', zIndex: 100 }}>
-                    <div className="toast-glass">
-                        <span className="material-symbols-outlined" style={{ fontSize: 18, color: '#ef4444' }}>warning</span>
-                        <span>{error}</span>
-                        <button onClick={() => setError(null)} style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', fontSize: 16, cursor: 'pointer', marginLeft: 'auto', paddingLeft: '8px' }}>✕</button>
+            {modalState.isOpen && (
+                <div className={styles.modalOverlay}>
+                    <div className={`${styles.modalContent} ${modalState.type === 'error' ? styles.modalError : styles.modalSuccess}`}>
+                        <div className={styles.modalHeader}>
+                            <span className={`material-symbols-outlined ${styles.modalIcon}`}>
+                                {modalState.type === 'error' ? 'error' : 'celebration'}
+                            </span>
+                            <h2 className={styles.modalTitle}>{modalState.title}</h2>
+                        </div>
+                        <p className={styles.modalBodyText}>{modalState.message}</p>
+                        <button
+                            className="btn-primary"
+                            style={{ width: '100%', marginTop: '1.5rem' }}
+                            onClick={() => setModalState(prev => ({ ...prev, isOpen: false }))}
+                        >
+                            Got it
+                        </button>
                     </div>
                 </div>
             )}

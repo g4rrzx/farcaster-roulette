@@ -115,7 +115,8 @@ export const questCompletions = pgTable(
         completedAt: timestamp('completed_at').notNull().defaultNow(),
     },
     (table) => [
-        uniqueIndex('quest_user_date_idx').on(table.userId, table.questId),
+        // Remove uniqueIndex because daily quests can be done multiple times
+        // We handle daily restrictions in application logic
     ]
 );
 
