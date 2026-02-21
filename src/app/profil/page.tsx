@@ -28,6 +28,7 @@ export default function ProfilPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [referralInput, setReferralInput] = useState('');
     const [isClaiming, setIsClaiming] = useState(false);
+    const [hasClaimedReferral, setHasClaimedReferral] = useState(false);
     const [modalState, setModalState] = useState<{ isOpen: boolean; title: string; message: string; type: 'success' | 'error' }>({
         isOpen: false,
         title: '',
@@ -52,6 +53,7 @@ export default function ProfilPage() {
                     const data = await res.json();
                     setStats(data.stats);
                     setHistory(data.history || []);
+                    setHasClaimedReferral(!!data.hasClaimedReferral);
                 }
             } catch (e) {
                 console.error('Failed to fetch profile:', e);
@@ -104,6 +106,7 @@ export default function ProfilPage() {
             if (res.ok) {
                 setStats(prev => ({ ...prev, tickets: prev.tickets + 1 }));
                 setReferralInput('');
+                setHasClaimedReferral(true);
                 setModalState({
                     isOpen: true,
                     title: 'Congratulations! 🎉',
@@ -230,23 +233,32 @@ export default function ProfilPage() {
 
                     <hr className={styles.dividerLine} />
 
-                    <h3 style={{ fontSize: '1rem', marginBottom: '1rem', color: 'var(--text-primary)', textAlign: 'center' }}>Got a referral code?</h3>
-                    <div className={styles.referralInputWrapper}>
-                        <input
-                            type="text"
-                            placeholder="Enter friend's FID"
-                            value={referralInput}
-                            onChange={(e) => setReferralInput(e.target.value)}
-                            className={styles.referralInput}
-                        />
-                        <button
-                            onClick={handleClaimReferral}
-                            disabled={isClaiming || !referralInput.trim()}
-                            className={styles.claimButton}
-                        >
-                            {isClaiming ? 'Claiming...' : 'Claim Spin'}
-                        </button>
-                    </div>
+                    {!hasClaimedReferral ? (
+                        <>
+                            <h3 style={{ fontSize: '1rem', marginBottom: '1rem', color: 'var(--text-primary)', textAlign: 'center' }}>Got a referral code?</h3>
+                            <div className={styles.referralInputWrapper}>
+                                <input
+                                    type="text"
+                                    placeholder="Enter friend's FID"
+                                    value={referralInput}
+                                    onChange={(e) => setReferralInput(e.target.value)}
+                                    className={styles.referralInput}
+                                />
+                                <button
+                                    onClick={handleClaimReferral}
+                                    disabled={isClaiming || !referralInput.trim()}
+                                    className={styles.claimButton}
+                                >
+                                    {isClaiming ? 'Claiming...' : 'Claim Spin'}
+                                </button>
+                            </div>
+                        </>
+                    ) : (
+                        <div style={{ textAlign: 'center', color: '#10b981', padding: '0.5rem', background: 'rgba(16, 185, 129, 0.1)', borderRadius: '0.5rem', border: '1px solid rgba(16, 185, 129, 0.3)' }}>
+                            <span className="material-symbols-outlined" style={{ verticalAlign: 'middle', marginRight: '0.5rem' }}>check_circle</span>
+                            You have already claimed a referral!
+                        </div>
+                    )}
                 </div>
             </div>
 

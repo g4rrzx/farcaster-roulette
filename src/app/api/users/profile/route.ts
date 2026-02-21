@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/db/index';
-import { users, spins } from '@/db/schema';
+import { users, spins, referrals } from '@/db/schema';
 import { eq, sql } from 'drizzle-orm';
 
 export const dynamic = 'force-dynamic';
@@ -36,6 +36,12 @@ export async function GET(req: NextRequest) {
             .where(eq(spins.userId, user.id))
             .orderBy(sql`${spins.createdAt} DESC`)
             .limit(20);
+        // Check if user has already claimed a referral
+        const [referralCheck] = await db
+            .select({ id: referrals.id })
+            .from(referrals)
+            .where(eq(referrals.referredFid, fid))
+            .limit(1);
 
         return NextResponse.json({
             user: {
@@ -51,6 +57,7 @@ export async function GET(req: NextRequest) {
                 balance: user.balance,
                 tickets: user.freeSpins,
             },
+            hasClaimedReferral: !!referralCheck,
             history: history.map(h => ({
                 id: h.id,
                 type: h.result === 'loss' ? 'loss' : 'win',
