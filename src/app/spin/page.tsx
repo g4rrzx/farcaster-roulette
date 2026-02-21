@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import Image from 'next/image';
 import confetti from 'canvas-confetti';
 import styles from './Spin.module.css';
@@ -24,6 +24,31 @@ export default function SpinPage() {
 
     // Error toast state
     const [spinError, setSpinError] = useState<string | null>(null);
+
+    // Initial Farcaster App Prompt
+    useEffect(() => {
+        const promptAddApp = async () => {
+            try {
+                const { default: sdk } = await import('@farcaster/frame-sdk');
+                // The addMiniApp action will prompt the user to add the app if they haven't already.
+                // It only works on the production domain matching farcaster.json.
+                if (sdk && sdk.actions && sdk.actions.addMiniApp) {
+                    await sdk.actions.addMiniApp();
+                }
+            } catch (e) {
+                console.warn('Could not trigger addMiniApp. This is normal in dev or if already added.', e);
+            }
+        };
+
+        // Delay slightly to ensure UI is ready and auth is checked
+        const timer = setTimeout(() => {
+            if (user && walletAddress) {
+                promptAddApp();
+            }
+        }, 1500);
+
+        return () => clearTimeout(timer);
+    }, [user, walletAddress]);
 
     const handleSpin = useCallback(async () => {
         if (tickets <= 0 || isSpinning || isProcessingTx || !user) return;
