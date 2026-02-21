@@ -26,6 +26,8 @@ export default function ProfilPage() {
     const [stats, setStats] = useState<ProfileStats>({ totalWins: 0, totalSpins: 0, totalLosses: 0, balance: 0, tickets: 0 });
     const [history, setHistory] = useState<HistoryItem[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [referralInput, setReferralInput] = useState('');
+    const [isClaiming, setIsClaiming] = useState(false);
 
     const isClient = useSyncExternalStore(
         () => () => { },
@@ -68,6 +70,41 @@ export default function ProfilPage() {
         } catch (e) {
             console.error(e);
             alert("Failed to connect wallet.");
+        }
+    };
+
+    const handleShareReferral = () => {
+        if (!user?.fid) return;
+        const text = encodeURIComponent(`Come spin the Farcaster Roulette! 🎰 Use my code to get 1 free spin! \n\nMy referral code (FID): ${user.fid}`);
+        const warpcastUrl = `https://warpcast.com/~/compose?text=${text}`;
+        window.open(warpcastUrl, '_blank');
+    };
+
+    const handleClaimReferral = async () => {
+        if (!user?.fid || !referralInput.trim()) return;
+        setIsClaiming(true);
+        try {
+            const res = await fetch('/api/referral/claim', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    referrerFid: referralInput.trim(),
+                    referredFid: user.fid
+                })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                alert(data.message || 'Successfully claimed referral!');
+                setStats(prev => ({ ...prev, tickets: prev.tickets + 1 }));
+                setReferralInput('');
+            } else {
+                alert(data.error || 'Failed to claim referral.');
+            }
+        } catch (e) {
+            console.error(e);
+            alert('An error occurred while claiming.');
+        } finally {
+            setIsClaiming(false);
         }
     };
 
@@ -127,6 +164,44 @@ export default function ProfilPage() {
                         <StatBox label="Tickets" value={stats.tickets} />
                     </>
                 )}
+            </div>
+
+            {/* Campaign Referral Section */}
+            <div className={styles.section} style={{ marginBottom: '2.5rem' }}>
+                <h2 className={styles.sectionTitle}>Campaign: Share & Earn</h2>
+                <div className={`${styles.referralCard} glass-morphism`}>
+                    <p style={{ color: 'var(--text-secondary)', marginBottom: '1rem', lineHeight: 1.5, fontSize: '0.9rem' }}>
+                        Invite friends to Farcaster Roulette! Share your link and get <b style={{ color: 'var(--primary)' }}>2 free spins</b>.
+                        Your friends get <b style={{ color: 'var(--primary)' }}>1 free spin</b> too!
+                    </p>
+                    <div className={styles.referralActions}>
+                        <button onClick={handleShareReferral} className="btn-primary" style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px' }}>
+                            <span className="material-symbols-outlined">share</span>
+                            Share to Warpcast
+                        </button>
+                    </div>
+
+                    <hr className={styles.dividerLine} />
+
+                    <h3 style={{ fontSize: '1rem', marginBottom: '0.75rem', color: 'var(--text-primary)' }}>Got a referral code?</h3>
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                        <input
+                            type="text"
+                            placeholder="Enter friend's FID"
+                            value={referralInput}
+                            onChange={(e) => setReferralInput(e.target.value)}
+                            className={styles.referralInput}
+                        />
+                        <button
+                            onClick={handleClaimReferral}
+                            disabled={isClaiming || !referralInput.trim()}
+                            className="btn-secondary"
+                            style={{ whiteSpace: 'nowrap', padding: '0.75rem 1rem' }}
+                        >
+                            {isClaiming ? 'Claiming...' : 'Claim Spin'}
+                        </button>
+                    </div>
+                </div>
             </div>
 
             <div className={styles.section}>

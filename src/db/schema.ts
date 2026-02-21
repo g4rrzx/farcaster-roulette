@@ -118,3 +118,11 @@ export const questCompletions = pgTable(
         uniqueIndex('quest_user_date_idx').on(table.userId, table.questId),
     ]
 );
+
+// ─── Referrals Table ────────────────────────────────────────────────────────
+export const referrals = pgTable('referrals', {
+    id: serial('id').primaryKey(),
+    referrerFid: integer('referrer_fid').notNull(),
+    referredFid: integer('referred_fid').notNull().unique(),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+});
