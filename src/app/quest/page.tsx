@@ -15,10 +15,12 @@ export default function QuestPage() {
         daily: QuestStatus;
         follow: QuestStatus;
         recast: QuestStatus;
+        recast_launch: QuestStatus;
     }>({
         daily: 'idle',
         follow: 'idle',
         recast: 'idle',
+        recast_launch: 'idle',
     });
 
     const [nextClaimDate, setNextClaimDate] = useState<string | null>(null);
@@ -54,7 +56,7 @@ export default function QuestPage() {
         setQuests(prev => ({ ...prev, [key]: status }));
     };
 
-    const verifyQuest = async (questType: 'daily' | 'follow' | 'recast', questKey: keyof typeof quests) => {
+    const verifyQuest = async (questType: 'daily' | 'follow' | 'recast' | 'recast_launch', questKey: keyof typeof quests) => {
         if (!user || isLoading) return;
 
         updateQuest(questKey, 'verifying');
@@ -111,6 +113,10 @@ export default function QuestPage() {
     const handleRecastAction = () => updateQuest('recast', 'action_taken');
     const handleVerifyRecast = () => verifyQuest('recast', 'recast');
 
+    // --- RECAST LAUNCH ---
+    const handleRecastLaunchAction = () => updateQuest('recast_launch', 'action_taken');
+    const handleVerifyRecastLaunch = () => verifyQuest('recast_launch', 'recast_launch');
+
     return (
         <main className={`${styles.container} page-transition`}>
             <header className={styles.header}>
@@ -159,6 +165,18 @@ export default function QuestPage() {
             <div className={styles.section}>
                 <h2 className={styles.sectionTitle}>One-time Quests</h2>
                 <div className={styles.grid}>
+                    <QuestCard
+                        title="Like & Recast Launch!"
+                        description="Support our launch to earn 2 tickets!"
+                        reward="+2 Tickets 🎟️"
+                        actionLabel="Go to Cast"
+                        href="https://farcaster.xyz/fcmini/0xc4dd7fac"
+                        status={quests.recast_launch}
+                        onActionTaken={handleRecastLaunchAction}
+                        onVerify={handleVerifyRecastLaunch}
+                        isPageLoading={isLoading}
+                    />
+
                     <QuestCard
                         title="Follow @fcmini"
                         description="Follow our official account for updates."

@@ -45,10 +45,10 @@ async function verifyFollow(fid: number): Promise<boolean> {
     }
 }
 
-async function verifyRecast(fid: number): Promise<boolean> {
+async function verifyRecast(fid: number, targetHash: string): Promise<boolean> {
     // Verify user has liked and recasted the specific target cast
     try {
-        const data = await neynarGet(`/cast?identifier=${TARGET_CAST_HASH}&type=hash&viewer_fid=${fid}`);
+        const data = await neynarGet(`/cast?identifier=${targetHash}&type=hash&viewer_fid=${fid}`);
         const viewerContext = (data.cast as any)?.viewer_context;
 
         if (viewerContext !== undefined) {
@@ -58,7 +58,7 @@ async function verifyRecast(fid: number): Promise<boolean> {
         return true;
     } catch (e: any) {
         // Fallback for demo if Neynar API requires payment/fails with any error
-        console.warn(`Bypassing verifyRecast error for cast ${TARGET_CAST_HASH} (Demo Mode):`, e.message);
+        console.warn(`Bypassing verifyRecast error for cast ${targetHash} (Demo Mode):`, e.message);
         return true;
     }
 }
@@ -71,8 +71,8 @@ export async function POST(req: NextRequest) {
         if (!fid || typeof fid !== 'number') {
             return NextResponse.json({ error: 'fid is required and must be a number' }, { status: 400 });
         }
-        if (!questType || !['follow', 'recast', 'daily'].includes(questType)) {
-            return NextResponse.json({ error: 'questType must be follow, recast, or daily' }, { status: 400 });
+        if (!questType || !['follow', 'recast', 'daily', 'recast_launch'].includes(questType)) {
+            return NextResponse.json({ error: 'questType must be follow, recast, daily, or recast_launch' }, { status: 400 });
         }
 
         // Find user
@@ -82,7 +82,7 @@ export async function POST(req: NextRequest) {
         }
 
         // Check if quest was already completed today
-        const questIdMap: Record<string, number> = { daily: 1, follow: 2, recast: 3 };
+        const questIdMap: Record<string, number> = { daily: 1, follow: 2, recast: 3, recast_launch: 4 };
         const questId = questIdMap[questType];
 
         const today = new Date();
@@ -117,21 +117,31 @@ export async function POST(req: NextRequest) {
                 }, { status: 400 });
             }
         } else if (questType === 'recast') {
-            const hasRecasted = await verifyRecast(fid);
+            const hasRecasted = await verifyRecast(fid, TARGET_CAST_HASH);
             if (!hasRecasted) {
                 return NextResponse.json({
                     success: false,
                     error: 'Recast not found. Please like & recast our post first!'
                 }, { status: 400 });
             }
+        } else if (questType === 'recast_launch') {
+            const LAUNCH_CAST_HASH = '0xc4dd7fac';
+            const hasRecasted = await verifyRecast(fid, LAUNCH_CAST_HASH);
+            if (!hasRecasted) {
+                return NextResponse.json({
+                    success: false,
+                    error: 'Recast not found. Please like & recast our launch post first!'
+                }, { status: 400 });
+            }
         }
         // 'daily' requires no external verification
 
-        // Award ticket
+        // Award ticket. If recast_launch, award 2.
+        const rewardAmount = questType === 'recast_launch' ? 2 : 1;
         await db
             .update(users)
             .set({
-                freeSpins: sql`${users.freeSpins} + 1`,
+                freeSpins: sql`${users.freeSpins} + ${rewardAmount}`,
                 updatedAt: new Date(),
             })
             .where(eq(users.id, user.id));
@@ -151,7 +161,7 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({
             success: true,
             tickets: updatedUser.tickets,
-            message: `Quest completed! +1 ticket`,
+            message: `Quest completed! +${rewardAmount} ticket${rewardAmount > 1 ? 's' : ''}`,
         });
     } catch (err: unknown) {
         console.error('Quest verify error:', err);
