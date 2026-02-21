@@ -350,6 +350,40 @@
     box-shadow: 0 0 10px rgba(0, 242, 255, 0.2);
 }
 
+.claimButton {
+    white-space: nowrap;
+    flex-shrink: 0;
+    padding: 0.75rem 1.25rem;
+    border: 1px solid rgba(168, 85, 247, 0.4);
+    border-radius: 0.5rem;
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.2) 0%, rgba(0, 242, 255, 0.1) 100%);
+    color: #c084fc;
+    font-size: 0.9rem;
+    font-weight: 700;
+    font-family: var(--font-display);
+    cursor: pointer;
+    transition: all 0.25s ease;
+    box-shadow: 0 0 10px rgba(168, 85, 247, 0.1);
+}
+
+.claimButton:hover {
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.3) 0%, rgba(0, 242, 255, 0.15) 100%);
+    box-shadow: 0 0 20px rgba(168, 85, 247, 0.25);
+    border-color: rgba(168, 85, 247, 0.6);
+    transform: translateY(-1px);
+}
+
+.claimButton:active {
+    transform: translateY(0);
+}
+
+.claimButton:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
 .referralActions {
     display: flex;
     flex-direction: column;

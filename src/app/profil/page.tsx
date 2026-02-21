@@ -199,8 +199,7 @@ export default function ProfilPage() {
                         <button
                             onClick={handleClaimReferral}
                             disabled={isClaiming || !referralInput.trim()}
-                            className="btn-secondary"
-                            style={{ whiteSpace: 'nowrap', padding: '0.75rem 1.25rem', flexShrink: 0 }}
+                            className={styles.claimButton}
                         >
                             {isClaiming ? 'Claiming...' : 'Claim Spin'}
                         </button>
