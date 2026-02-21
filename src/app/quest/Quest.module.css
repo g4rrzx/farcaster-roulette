@@ -4,6 +4,7 @@
     max-width: 600px;
     margin: 0 auto;
     min-height: 100vh;
+    background-color: var(--background-dark);
 }
 
 .header {
