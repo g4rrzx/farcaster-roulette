@@ -127,3 +127,13 @@ export const referrals = pgTable('referrals', {
     referredFid: integer('referred_fid').notNull().unique(),
     createdAt: timestamp('created_at').notNull().defaultNow(),
 });
+
+// ─── Notification Tokens Table ──────────────────────────────────────────────
+export const notificationTokens = pgTable('notification_tokens', {
+    id: serial('id').primaryKey(),
+    fid: integer('fid').notNull().unique(),
+    token: text('token').notNull(),
+    url: text('url').notNull(),
+    createdAt: timestamp('created_at').notNull().defaultNow(),
+    updatedAt: timestamp('updated_at').notNull().defaultNow(),
+});
