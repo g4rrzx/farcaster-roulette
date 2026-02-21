@@ -159,8 +159,7 @@ export default function QuestPage() {
                         </div>
                         <p className={styles.modalBodyText}>{modalState.message}</p>
                         <button
-                            className="btn-primary"
-                            style={{ width: '100%', marginTop: '1.5rem' }}
+                            className={styles.modalButton}
                             onClick={() => setModalState(prev => ({ ...prev, isOpen: false }))}
                         >
                             Got it
