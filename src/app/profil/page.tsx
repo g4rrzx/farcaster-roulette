@@ -76,8 +76,7 @@ export default function ProfilPage() {
     const handleShareReferral = () => {
         if (!user?.fid) return;
         const text = encodeURIComponent(`🎰 Come spin the Farcaster Roulette! Use my code to get a free spin! \n\nMy referral code (FID): ${user.fid}`);
-        // Embed the current web app origin so it shows up as a Frame/Mini-App in Warpcast
-        const embedUrl = encodeURIComponent(window.location.origin);
+        const embedUrl = encodeURIComponent('https://farcaster.xyz/miniapps/d4a1IMp6kHrn/arbitrum-roulette');
         const warpcastUrl = `https://warpcast.com/~/compose?text=${text}&embeds[]=${embedUrl}`;
         window.open(warpcastUrl, '_blank');
     };
@@ -180,7 +179,7 @@ export default function ProfilPage() {
                         Your friends get <b style={{ color: 'var(--primary)' }}>1 free spin</b> too!
                     </p>
                     <div className={styles.referralActions}>
-                        <button onClick={handleShareReferral} className="btn-primary" style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px' }}>
+                        <button onClick={handleShareReferral} className={styles.shareButton}>
                             <span className="material-symbols-outlined">share</span>
                             Share Link to Warpcast
                         </button>

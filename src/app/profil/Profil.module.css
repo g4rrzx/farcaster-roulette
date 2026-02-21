@@ -319,6 +319,37 @@
     font-size: 32px;
 }
 
+.shareButton {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    padding: 0.85rem 1.5rem;
+    border: 1px solid rgba(0, 242, 255, 0.4);
+    border-radius: 0.75rem;
+    background: linear-gradient(135deg, rgba(0, 242, 255, 0.15) 0%, rgba(168, 85, 247, 0.1) 100%);
+    color: var(--primary);
+    font-size: 0.95rem;
+    font-weight: 700;
+    font-family: var(--font-display);
+    cursor: pointer;
+    transition: all 0.25s ease;
+    box-shadow: 0 0 15px rgba(0, 242, 255, 0.1);
+}
+
+.shareButton:hover {
+    background: linear-gradient(135deg, rgba(0, 242, 255, 0.25) 0%, rgba(168, 85, 247, 0.15) 100%);
+    box-shadow: 0 0 25px rgba(0, 242, 255, 0.25), 0 0 50px rgba(0, 242, 255, 0.1);
+    border-color: rgba(0, 242, 255, 0.6);
+    transform: translateY(-2px);
+}
+
+.shareButton:active {
+    transform: translateY(0);
+    box-shadow: 0 0 10px rgba(0, 242, 255, 0.2);
+}
+
 .referralActions {
     display: flex;
     flex-direction: column;
