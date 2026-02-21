@@ -7,10 +7,15 @@
   --accent-purple-glow: rgba(168, 85, 247, 0.5);
   --background-dark: #020617;
   --surface-dark: #0f172a;
+  --surface-light: #0f172a;
   --text-primary: #f8fafc;
   --text-secondary: #94a3b8;
 
   --font-display: 'Inter', sans-serif;
+}
+
+html {
+  background-color: #020617;
 }
 
 * {
