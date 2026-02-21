@@ -433,3 +433,126 @@
     border-color: var(--primary);
     box-shadow: 0 0 10px rgba(0, 242, 255, 0.3);
 }
+
+/* Modal Styles */
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(8px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    padding: 1.5rem;
+    animation: fadeIn 0.3s ease;
+}
+
+.modalContent {
+    background: #0f172a;
+    /* Exact dark slate background */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    border-radius: 1.5rem;
+    padding: 2rem;
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    color: #f8fafc;
+    /* Force light text */
+    animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.modalSuccess {
+    box-shadow: 0 0 40px rgba(0, 242, 255, 0.15);
+    border-color: rgba(0, 242, 255, 0.3);
+}
+
+.modalError {
+    box-shadow: 0 0 40px rgba(239, 68, 68, 0.15);
+    border-color: rgba(239, 68, 68, 0.3);
+}
+
+.modalHeader {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.modalIcon {
+    font-size: 3.5rem;
+}
+
+.modalSuccess .modalIcon {
+    color: var(--primary);
+    text-shadow: 0 0 20px rgba(0, 242, 255, 0.5);
+}
+
+.modalError .modalIcon {
+    color: #ef4444;
+    text-shadow: 0 0 20px rgba(239, 68, 68, 0.5);
+}
+
+.modalTitle {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #ffffff;
+    /* Clean white */
+    font-family: var(--font-display);
+    margin: 0;
+}
+
+.modalBodyText {
+    color: #cbd5e1;
+    /* Light slate */
+    font-size: 1rem;
+    line-height: 1.6;
+    margin: 0;
+}
+
+.modalButton {
+    width: 100%;
+    margin-top: 1.5rem;
+    padding: 0.85rem 1.5rem;
+    border: 1px solid rgba(0, 242, 255, 0.4);
+    border-radius: 0.75rem;
+    background: linear-gradient(135deg, rgba(0, 242, 255, 0.15) 0%, rgba(168, 85, 247, 0.15) 100%);
+    color: #00f2ff;
+    font-size: 0.95rem;
+    font-weight: 700;
+    font-family: var(--font-display);
+    cursor: pointer;
+    transition: all 0.25s ease;
+    box-shadow: 0 0 15px rgba(0, 242, 255, 0.1);
+}
+
+.modalButton:hover {
+    background: linear-gradient(135deg, rgba(0, 242, 255, 0.25) 0%, rgba(168, 85, 247, 0.25) 100%);
+    box-shadow: 0 0 25px rgba(0, 242, 255, 0.25);
+    border-color: rgba(0, 242, 255, 0.6);
+    transform: translateY(-2px);
+}
+
+.modalButton:active {
+    transform: translateY(0);
+    box-shadow: 0 0 10px rgba(0, 242, 255, 0.2);
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}

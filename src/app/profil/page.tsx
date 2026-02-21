@@ -28,6 +28,12 @@ export default function ProfilPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [referralInput, setReferralInput] = useState('');
     const [isClaiming, setIsClaiming] = useState(false);
+    const [modalState, setModalState] = useState<{ isOpen: boolean; title: string; message: string; type: 'success' | 'error' }>({
+        isOpen: false,
+        title: '',
+        message: '',
+        type: 'success',
+    });
 
     const isClient = useSyncExternalStore(
         () => () => { },
@@ -84,6 +90,7 @@ export default function ProfilPage() {
     const handleClaimReferral = async () => {
         if (!user?.fid || !referralInput.trim()) return;
         setIsClaiming(true);
+        setModalState(prev => ({ ...prev, isOpen: false }));
         try {
             const res = await fetch('/api/referral/claim', {
                 method: 'POST',
@@ -95,15 +102,30 @@ export default function ProfilPage() {
             });
             const data = await res.json();
             if (res.ok) {
-                alert(data.message || 'Successfully claimed referral!');
                 setStats(prev => ({ ...prev, tickets: prev.tickets + 1 }));
                 setReferralInput('');
+                setModalState({
+                    isOpen: true,
+                    title: 'Congratulations! 🎉',
+                    message: data.message || 'Successfully claimed referral! You got 1 free spin.',
+                    type: 'success'
+                });
             } else {
-                alert(data.error || 'Failed to claim referral.');
+                setModalState({
+                    isOpen: true,
+                    title: 'Oops! 😬',
+                    message: data.error || 'Failed to claim referral.',
+                    type: 'error'
+                });
             }
         } catch (e) {
             console.error(e);
-            alert('An error occurred while claiming.');
+            setModalState({
+                isOpen: true,
+                title: 'Connection Error',
+                message: 'An error occurred while claiming. Please try again.',
+                type: 'error'
+            });
         } finally {
             setIsClaiming(false);
         }
@@ -129,6 +151,27 @@ export default function ProfilPage() {
         <main className={`${styles.container} page-transition`}>
             {/* Ambient Background */}
             <div className={styles.ambientGlow}></div>
+
+            {/* Modal */}
+            {modalState.isOpen && (
+                <div className={styles.modalOverlay}>
+                    <div className={`${styles.modalContent} ${modalState.type === 'error' ? styles.modalError : styles.modalSuccess}`}>
+                        <div className={styles.modalHeader}>
+                            <span className={`material-symbols-outlined ${styles.modalIcon}`}>
+                                {modalState.type === 'error' ? 'error' : 'celebration'}
+                            </span>
+                            <h2 className={styles.modalTitle}>{modalState.title}</h2>
+                        </div>
+                        <p className={styles.modalBodyText}>{modalState.message}</p>
+                        <button
+                            className={styles.modalButton}
+                            onClick={() => setModalState(prev => ({ ...prev, isOpen: false }))}
+                        >
+                            Got it
+                        </button>
+                    </div>
+                </div>
+            )}
 
             <header className={styles.header}>
                 <div className={styles.avatarContainer}>
