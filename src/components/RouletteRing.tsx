@@ -129,13 +129,13 @@ export default function RouletteRing({ isSpinning, isProcessingTx, result, onSpi
     // Reset transition when spinning starts again
     const segmentsData = [
         { label: "ZONK 💀", type: "zonk", rotation: 22.5 },
-        { label: "0.01 ARB", type: "arb", rotation: 67.5 },
+        { label: "0.05 ARB", type: "arb", rotation: 67.5 },
         { label: "ZONK 💀", type: "zonk", rotation: 112.5 },
-        { label: "0.01 ARB", type: "arb", rotation: 157.5 },
+        { label: "0.05 ARB", type: "arb", rotation: 157.5 },
         { label: "ZONK 💀", type: "zonk", rotation: 202.5 },
         { label: "JACKPOT 🏆", type: "jackpot", rotation: 247.5 },
         { label: "ZONK 💀", type: "zonk", rotation: 292.5 },
-        { label: "0.01 ARB", type: "arb", rotation: 337.5 },
+        { label: "0.05 ARB", type: "arb", rotation: 337.5 },
     ];
 
     return (

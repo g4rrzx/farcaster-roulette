@@ -156,7 +156,7 @@ export async function verifySpinTransaction(userId: string, txHash: string) {
         .values({
             userId,
             betAmount: 1, // On-chain bet is always 1 ticket/spin fee
-            multiplier: resultType === 2 ? "50.0" : (isWin ? "10.0" : "0.0"),
+            multiplier: resultType === 2 ? "20.0" : (isWin ? "10.0" : "0.0"),
             result: resultStr,
             payout: payoutNumeric.toFixed(2),
             txHash,
