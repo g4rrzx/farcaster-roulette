@@ -7,28 +7,71 @@ export async function POST(req: NextRequest) {
     try {
         const body = await req.json();
 
+        // Decode Farcaster JFS if present
+        let payloadObj;
+        let fid;
+
+        if (body?.payload && body?.header) {
+            try {
+                // Decode from base64url
+                const decodedPayload = Buffer.from(body.payload, 'base64url').toString('utf-8');
+                payloadObj = JSON.parse(decodedPayload);
+
+                const decodedHeader = Buffer.from(body.header, 'base64url').toString('utf-8');
+                const headerObj = JSON.parse(decodedHeader);
+                fid = headerObj.fid;
+            } catch (err) {
+                console.error('Invalid base64 payload/header', err);
+                return NextResponse.json({ success: false, error: 'Invalid payload encoding' }, { status: 400 });
+            }
+        } else {
+            payloadObj = body;
+            fid = body?.fid; // fallback if already decoded
+        }
+
         // Ensure we have a valid payload
-        if (!body || !body.event) {
+        if (!payloadObj || !payloadObj.event) {
             return NextResponse.json({ success: false, error: 'Invalid payload' }, { status: 400 });
         }
 
-        const { event, notificationDetails } = body;
+        const { event, notificationDetails } = payloadObj;
 
-        // Note: For production with Neynar, we need to verify the webhook signature here.
-        // The @farcaster/miniapp-node library or Neynar SDK would be used here dynamically.
-        // For right now, we trust the payload if it's well-formed to get it working in the mini app.
+        console.log('Webhook received:', event, notificationDetails, 'FID:', fid);
 
-        // We can optionally verify the fid from a signed header or context if needed, 
-        // but for now let's assume the Farcaster Client (Warpcast) is sending trusted requests 
-        // (Wait: Actually the incoming payload needs to provide the FID. Mini app webhooks from Warpcast 
-        // are documented to be verified using `@farcaster/miniapp-node`. Without it, we don't naturally 
-        // have the `fid` in the payload body unless it's in the headers/signature). 
+        // Save the notification tokens
+        if (event === 'frame_added' || event === 'miniapp_added') {
+            if (fid && notificationDetails?.token && notificationDetails?.url) {
+                try {
+                    await db.insert(notificationTokens).values({
+                        fid,
+                        token: notificationDetails.token,
+                        url: notificationDetails.url,
+                    }).onConflictDoUpdate({
+                        target: notificationTokens.fid,
+                        set: {
+                            token: notificationDetails.token,
+                            url: notificationDetails.url,
+                            updatedAt: new Date()
+                        }
+                    });
+                    console.log(`Saved notification details for FID ${fid}`);
+                } catch (e) {
+                    console.error('Error saving notification tokens to DB', e);
+                }
+            } else {
+                console.warn('Missing FID or notificationDetails for miniapp_added event');
+            }
+        } else if (event === 'frame_removed' || event === 'miniapp_removed') {
+            if (fid) {
+                try {
+                    await db.delete(notificationTokens).where(eq(notificationTokens.fid, fid));
+                    console.log(`Removed notification details for FID ${fid}`);
+                } catch (e) {
+                    console.error('Error removing notification tokens from DB', e);
+                }
+            }
+        }
 
-        // Let's inspect headers. The `miniapp_added` event is verifiable via library.
-        // Actually, looking at the docs, Farcaster clients POST the event with a signature.
-        console.log('Webhook received:', event, notificationDetails);
-
-        // We will pause integration here to handle proper FID extraction.
         return NextResponse.json({ success: true });
 
     } catch (err: unknown) {
