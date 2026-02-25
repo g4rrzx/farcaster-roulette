@@ -54,7 +54,7 @@ export async function GET(req: NextRequest) {
                 totalWins: user.totalWins,
                 totalSpins: user.totalSpins,
                 totalLosses: user.totalLosses,
-                balance: user.balance,
+                balance: Number(user.balance),
                 tickets: user.freeSpins,
             },
             hasClaimedReferral: !!referralCheck,

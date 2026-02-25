@@ -19,7 +19,7 @@ export async function getUserProfile(userId: string) {
         image: user.image,
         fid: user.fid,
         walletAddress: user.walletAddress,
-        balance: user.balance,
+        balance: Number(user.balance),
         level: user.level,
         totalWins: user.totalWins,
         totalLosses: user.totalLosses,

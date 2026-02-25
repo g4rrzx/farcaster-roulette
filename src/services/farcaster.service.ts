@@ -22,7 +22,7 @@ export async function loginFarcasterUser(
             image: pfpUrl,
             fid: fid,
             walletAddress: null,
-            balance: 0, // Using balance as Tickets
+            balance: '0', // Using balance as Tickets
             level: 1,
             totalWins: 0,
             totalLosses: 0,

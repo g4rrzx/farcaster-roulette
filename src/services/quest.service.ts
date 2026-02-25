@@ -124,7 +124,7 @@ export async function claimQuest(userId: string, questId: number) {
         success: true,
         rewardType: quest.rewardType,
         rewardAmount: quest.rewardAmount,
-        newBalance: updatedUser.balance,
+        newBalance: Number(updatedUser.balance),
         newFreeSpins: updatedUser.freeSpins,
     };
 }
