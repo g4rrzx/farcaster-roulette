@@ -173,7 +173,7 @@ export async function verifySpinTransaction(userId: string, txHash: string) {
         success: true,
         result: resultStr,
         payout: payoutNumeric,
-        newBalance: updatedUser.balance,
+        newBalance: Number(updatedUser.balance),
         newTickets: updatedUser.tickets,
         spinId: spin.id,
     };
@@ -190,7 +190,7 @@ export async function executeSpin(userId: string, betAmount: number) {
     // Get user and check balance
     const [user] = await db.select().from(users).where(eq(users.id, userId));
     if (!user) throw new Error('User not found');
-    if (user.balance < betAmount) throw new Error('Insufficient balance');
+    if (Number(user.balance) < betAmount) throw new Error('Insufficient balance');
 
     // Determine result
     const isWin = Math.random() < GAME_CONFIG.winChance;

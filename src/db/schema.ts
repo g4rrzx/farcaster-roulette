@@ -23,7 +23,7 @@ export const users = pgTable('users', {
     // Custom game columns
     fid: integer('fid').unique(),
     walletAddress: text('wallet_address'),
-    balance: integer('balance').notNull().default(1000),
+    balance: numeric('balance', { precision: 20, scale: 6 }).notNull().default('1000'),
     level: integer('level').notNull().default(1),
     totalWins: integer('total_wins').notNull().default(0),
     totalLosses: integer('total_losses').notNull().default(0),
