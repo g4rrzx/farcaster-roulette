@@ -280,7 +280,7 @@ export async function getRecentWins(limit = 10) {
         id: win.id,
         user: win.userName || `@user_${win.userId.substring(0, 4)}`,
         amount: win.payout,
-        token: 'DEGEN', // Default for now
+        token: 'ARB',
         createdAt: win.createdAt,
     }));
 }
