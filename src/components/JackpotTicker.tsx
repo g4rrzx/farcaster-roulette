@@ -8,6 +8,7 @@ interface WinRecord {
     user: string;
     amount: string | number;
     token: string;
+    isJackpot?: boolean;
     createdAt?: string;
 }
 
@@ -30,7 +31,6 @@ export default function JackpotTicker() {
         };
 
         fetchRecentWins();
-        // Optional: Poll every 30 seconds for new wins
         const interval = setInterval(fetchRecentWins, 30000);
         return () => clearInterval(interval);
     }, []);
@@ -40,13 +40,20 @@ export default function JackpotTicker() {
     return (
         <div className={styles.container}>
             <div className={styles.track}>
-                {/* Triple the content for smooth infinite loop */}
                 {[...wins, ...wins, ...wins].map((win, i) => (
-                    <div key={`${win.id || win.user}-${i}`} className={styles.item}>
-                        <span className={styles.icon}>🎉</span>
+                    <div
+                        key={`${win.id || win.user}-${i}`}
+                        className={`${styles.item} ${win.isJackpot ? styles.jackpotItem : ''}`}
+                    >
+                        <span className={styles.icon}>{win.isJackpot ? '🏆' : '🎉'}</span>
                         <span className={styles.text}>
-                            <span className={styles.user}>{win.user}</span> won{" "}
-                            <span className={styles.amount}>
+                            <span className={styles.user}>{win.user}</span>{" "}
+                            {win.isJackpot ? (
+                                <span className={styles.jackpotLabel}>JACKPOT </span>
+                            ) : (
+                                <>won{" "}</>
+                            )}
+                            <span className={win.isJackpot ? styles.jackpotAmount : styles.amount}>
                                 {typeof win.amount === 'number' ? win.amount.toLocaleString() : win.amount} {win.token}
                             </span>
                         </span>

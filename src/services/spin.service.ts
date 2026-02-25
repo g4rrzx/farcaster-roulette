@@ -266,13 +266,14 @@ export async function getRecentWins(limit = 10) {
         .select({
             id: spins.id,
             payout: spins.payout,
+            result: spins.result,
             userId: spins.userId,
             userName: users.name,
             createdAt: spins.createdAt,
         })
         .from(spins)
         .innerJoin(users, eq(spins.userId, users.id))
-        .where(eq(spins.result, 'win'))
+        .where(sql`${spins.result} IN ('win', 'jackpot')`)
         .orderBy(sql`${spins.createdAt} DESC`)
         .limit(limit);
 
@@ -281,6 +282,7 @@ export async function getRecentWins(limit = 10) {
         user: win.userName || `@user_${win.userId.substring(0, 4)}`,
         amount: win.payout,
         token: 'ARB',
+        isJackpot: win.result === 'jackpot',
         createdAt: win.createdAt,
     }));
 }
